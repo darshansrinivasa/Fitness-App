@@ -6,6 +6,8 @@ import type {
   SyncableRecord,
 } from '@lifestyle-os/shared';
 
+import { newId } from '../lib/id';
+
 const LOCAL_SCHEMA = `
 create table if not exists sync_metadata (
   table_name text primary key,
@@ -106,7 +108,7 @@ export async function enqueueChange(
   payload: string,
   createdAt: string,
 ): Promise<void> {
-  const id = crypto.randomUUID();
+  const id = newId();
   await db.runAsync(
     `INSERT INTO sync_queue (id, table_name, record_id, operation, payload, created_at, attempts)
      VALUES (?, ?, ?, ?, ?, ?, 0)`,

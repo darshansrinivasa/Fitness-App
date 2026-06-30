@@ -10,3 +10,4 @@ export {
   type WaterLogWriteInput,
   type EnqueueWaterLogChange,
 } from './waterLogs';
+export type { WaterLog } from '../schemas/waterLog';

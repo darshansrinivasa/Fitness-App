@@ -1,0 +1,8 @@
+# Supabase CLI config — migrations live here; SQL source also in packages/supabase/migrations/
+project_id = "rbjcvriphtopjmeeunnu"
+
+[db]
+major_version = 15
+
+[api]
+enabled = true

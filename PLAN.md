@@ -1263,13 +1263,13 @@ Phases are **vertical slices** — each slice delivers a shippable increment. Bu
 - [x] Set up React web project (online-only stub)
 
 ### Slice 0 — Foundation
-- [ ] Monorepo scaffold (pnpm workspaces)
-- [ ] Supabase project + initial migrations (`profiles`, `water_logs`)
-- [ ] Authentication (sign up, login, profile)
-- [ ] Local SQLite shell + schema versioning (`user_version` PRAGMA)
-- [ ] Sync skeleton: queue push + delta pull on `water_logs`
-- [ ] Sync status UX (pending count, last synced, retry)
-- [ ] Minimal design system tokens (`Button`, `Input`, `Card`, `ScreenLayout`)
+- [x] Monorepo scaffold (pnpm workspaces)
+- [x] Supabase project + initial migrations (`profiles`, `water_logs`)
+- [x] Authentication (sign up, login, profile)
+- [x] Local SQLite shell + schema versioning (`user_version` PRAGMA)
+- [x] Sync skeleton: queue push + delta pull on `water_logs`
+- [x] Sync status UX (pending count, last synced, retry)
+- [x] Minimal design system tokens (`Button`, `Input`, `Card`, `ScreenLayout`)
 
 ### Slice 1 — Pilot module (Water)
 - [ ] Water intake module (full): quick log, daily goal, progress ring, history

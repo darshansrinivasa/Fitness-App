@@ -67,6 +67,19 @@ Apply database migrations:
 cd packages/supabase && supabase db push
 ```
 
+See [docs/AUTH.md](./docs/AUTH.md) for **Google sign-in** setup (Supabase + Google Cloud).
+
+### Test on device (Slice 0)
+
+```bash
+pnpm mobile
+```
+
+1. Sign up or sign in
+2. Tap **+200 ml** / **+350 ml** / **+500 ml** — writes to local SQLite and syncs
+3. Check **Sync** card: pending count drops, last synced updates
+4. Verify rows in Supabase Dashboard → Table Editor → `water_logs`
+
 ## Current slice
 
 **Slice 0 — Foundation:** monorepo scaffold, schema fixes, water_logs sync spike.

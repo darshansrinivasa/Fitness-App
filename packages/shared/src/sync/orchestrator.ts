@@ -78,12 +78,11 @@ export class SyncOrchestrator {
       const result = await this.applyPull(table, delta);
       pulled += result.applied.length;
 
-      if (delta.length > 0) {
-        const latest = delta.reduce((a, b) =>
-          shouldBeLatest(a, b) ? a : b,
-        );
-        await this.local.setSyncMetadata(table, latest.updated_at);
-      }
+      const syncedAt =
+        delta.length > 0
+          ? delta.reduce((a, b) => (shouldBeLatest(a, b) ? a : b)).updated_at
+          : new Date().toISOString();
+      await this.local.setSyncMetadata(table, syncedAt);
     }
 
     return { pulled };

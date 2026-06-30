@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+
+# Environment & secrets (never commit real keys)
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Web (Vite)
+dist/
+apps/web/dist/
+**/.vite/
+
+# Mobile (Expo / React Native)
+.expo/
+.expo-shared/
+web-build/
+apps/mobile/.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+android/
+ios/
+
+# Supabase CLI local state (linked project ref, versions — machine-specific)
+supabase/.temp/
+supabase/.branches/
+
+# Optional: local Supabase Docker volumes (if you run supabase start)
+supabase/.volumes/

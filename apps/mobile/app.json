@@ -1,0 +1,18 @@
+{
+  "expo": {
+    "name": "Lifestyle OS",
+    "slug": "lifestyle-os",
+    "version": "0.0.1",
+    "orientation": "portrait",
+    "scheme": "lifestyle-os",
+    "userInterfaceStyle": "automatic",
+    "platforms": ["android"],
+    "android": {
+      "package": "com.lifestyleos.app"
+    },
+    "extra": {
+      "supabaseUrl": "",
+      "supabaseAnonKey": ""
+    }
+  }
+}

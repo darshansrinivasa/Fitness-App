@@ -1,1 +1,74 @@
-# Fitness-App
+# Lifestyle OS
+
+Personal health and lifestyle management — offline-first mobile app with Supabase sync.
+
+## Monorepo structure
+
+```
+apps/mobile     Expo React Native (Android primary, offline-first)
+apps/web        React + Vite (online-only v1)
+packages/shared Types, Zod schemas, sync engine
+packages/supabase SQL migrations
+docs/           SYNC.md and planning docs
+PLAN.md         Master product plan
+```
+
+## Prerequisites
+
+Install **pnpm 9** (the repo pins `pnpm@9.15.0`):
+
+```bash
+# Option A — recommended (global install)
+npm install -g pnpm@9.15.0
+
+# Option B — Node built-in (if corepack is available)
+corepack enable
+corepack prepare pnpm@9.15.0 --activate
+
+# Option C — no global install (prefix every command with npx)
+npx pnpm@9.15.0 install
+```
+
+## Quick start
+
+```bash
+pnpm install
+pnpm test          # shared package unit tests
+pnpm mobile        # Expo dev server
+pnpm web           # Vite dev server
+```
+
+## Environment
+
+Copy the example env files and add your Supabase credentials:
+
+```bash
+cp apps/mobile/.env.example apps/mobile/.env
+cp apps/web/.env.example apps/web/.env
+```
+
+**Mobile** (`apps/mobile/.env`):
+
+```env
+EXPO_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+**Web** (`apps/web/.env`):
+
+```env
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Apply database migrations:
+
+```bash
+cd packages/supabase && supabase db push
+```
+
+## Current slice
+
+**Slice 0 — Foundation:** monorepo scaffold, schema fixes, water_logs sync spike.
+
+See [PLAN.md](./PLAN.md) for the full roadmap and [docs/SYNC.md](./docs/SYNC.md) for sync architecture.

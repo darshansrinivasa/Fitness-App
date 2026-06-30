@@ -1,0 +1,14 @@
+{
+  "name": "lifestyle-os",
+  "private": true,
+  "scripts": {
+    "mobile": "pnpm --filter @lifestyle-os/mobile start",
+    "web": "pnpm --filter @lifestyle-os/web dev",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "packageManager": "pnpm@9.15.0"
+}

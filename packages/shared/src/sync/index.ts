@@ -10,4 +10,15 @@ export {
   type WaterLogWriteInput,
   type EnqueueWaterLogChange,
 } from './waterLogs';
+export {
+  WATER_GOALS_TABLE,
+  DEFAULT_DAILY_WATER_GOAL_ML,
+  todayDateString,
+  createWaterGoal,
+  updateWaterGoal,
+  enqueueWaterGoal,
+  type WaterGoalWriteInput,
+  type EnqueueWaterGoalChange,
+} from './waterGoals';
 export type { WaterLog } from '../schemas/waterLog';
+export type { WaterGoal } from '../schemas/waterGoal';

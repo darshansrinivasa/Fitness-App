@@ -82,6 +82,6 @@ pnpm mobile
 
 ## Current slice
 
-**Slice 0 — Foundation:** monorepo scaffold, schema fixes, water_logs sync spike.
+**Slice 1 — Water:** configurable daily goal, progress ring, 30-day chart, and `water_goals` sync.
 
 See [PLAN.md](./PLAN.md) for the full roadmap and [docs/SYNC.md](./docs/SYNC.md) for sync architecture.

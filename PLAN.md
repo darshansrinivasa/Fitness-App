@@ -1258,7 +1258,7 @@ Phases are **vertical slices** — each slice delivers a shippable increment. Bu
 - [x] Design database schema (all tables)
 - [x] Design navigation structure
 - [ ] Design UI component library and design system
-- [ ] Set up Supabase project and apply migrations
+- [x] Set up Supabase project and apply migrations
 - [x] Set up Expo project and folder structure
 - [x] Set up React web project (online-only stub)
 
@@ -1272,9 +1272,9 @@ Phases are **vertical slices** — each slice delivers a shippable increment. Bu
 - [x] Minimal design system tokens (`Button`, `Input`, `Card`, `ScreenLayout`)
 
 ### Slice 1 — Pilot module (Water)
-- [ ] Water intake module (full): quick log, daily goal, progress ring, history
-- [ ] Water module sync (prove the loop: log → SQLite → sync → read back)
-- [ ] Basic 30-day water chart
+- [x] Water intake module (full): quick log, daily goal, progress ring, history
+- [x] Water module sync (prove the loop: log → SQLite → sync → read back)
+- [x] Basic 30-day water chart
 
 ### Slice 2 — Core trio (Fitness identity)
 - [ ] Fitness module (full)
@@ -1430,4 +1430,4 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 ---
 
-*Last updated: July 2026 — Slice 0 (Foundation)*
+*Last updated: July 2026 — Slice 1 (Water)*

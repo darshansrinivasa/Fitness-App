@@ -75,6 +75,28 @@ export async function migrateLocalSchema(db: SQLiteDatabase): Promise<void> {
     `,
     );
     await db.execAsync('PRAGMA user_version = 2');
+    version = 2;
+  }
+
+  if (version < 3) {
+    await runSql(
+      db,
+      `
+      CREATE TABLE IF NOT EXISTS water_goals (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        daily_target_ml INTEGER NOT NULL,
+        effective_from TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE INDEX IF NOT EXISTS water_goals_user_effective_idx
+        ON water_goals (user_id, effective_from);
+    `,
+    );
+    await db.execAsync('PRAGMA user_version = 3');
   }
 }
 
@@ -158,4 +180,48 @@ export async function getLastSyncedAt(
     [table],
   );
   return row?.last_synced_at ?? null;
+}
+
+export interface DailyWaterTotal {
+  day: string;
+  total_ml: number;
+}
+
+function startOfDaysAgoIso(daysAgo: number): string {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  d.setDate(d.getDate() - daysAgo);
+  return d.toISOString();
+}
+
+export async function getDailyWaterTotals(
+  db: SQLiteDatabase,
+  userId: string,
+  days = 30,
+): Promise<DailyWaterTotal[]> {
+  const since = startOfDaysAgoIso(days - 1);
+  const rows = await db.getAllAsync<{ day: string; total_ml: number }>(
+    `SELECT date(logged_at) as day, COALESCE(SUM(amount_ml), 0) as total_ml
+     FROM water_logs
+     WHERE user_id = ? AND deleted_at IS NULL AND logged_at >= ?
+     GROUP BY date(logged_at)
+     ORDER BY day ASC`,
+    [userId, since],
+  );
+
+  const totalsByDay = new Map(rows.map((row) => [row.day, row.total_ml]));
+  const result: DailyWaterTotal[] = [];
+
+  for (let i = days - 1; i >= 0; i -= 1) {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() - i);
+    const day = d.toISOString().slice(0, 10);
+    result.push({
+      day,
+      total_ml: totalsByDay.get(day) ?? 0,
+    });
+  }
+
+  return result;
 }

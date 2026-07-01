@@ -1,6 +1,7 @@
 import {
   PILOT_SYNC_TABLES,
   SyncOrchestrator,
+  WATER_GOALS_TABLE,
   WATER_LOGS_TABLE,
   type RemoteSyncClient,
   type SyncableRecord,
@@ -22,6 +23,17 @@ const WATER_LOG_REMOTE_COLUMNS = [
   'sync_version',
 ] as const;
 
+const WATER_GOAL_REMOTE_COLUMNS = [
+  'id',
+  'user_id',
+  'daily_target_ml',
+  'effective_from',
+  'created_at',
+  'updated_at',
+  'deleted_at',
+  'sync_version',
+] as const;
+
 function sanitizeRemoteRow(
   table: string,
   row: Record<string, unknown>,
@@ -29,6 +41,14 @@ function sanitizeRemoteRow(
   if (table === WATER_LOGS_TABLE) {
     return Object.fromEntries(
       WATER_LOG_REMOTE_COLUMNS.filter((key) => key in row).map((key) => [
+        key,
+        row[key],
+      ]),
+    );
+  }
+  if (table === WATER_GOALS_TABLE) {
+    return Object.fromEntries(
+      WATER_GOAL_REMOTE_COLUMNS.filter((key) => key in row).map((key) => [
         key,
         row[key],
       ]),

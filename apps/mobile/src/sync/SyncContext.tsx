@@ -10,28 +10,39 @@ import {
 import { AppState, type AppStateStatus } from 'react-native';
 import { useSQLiteContext } from 'expo-sqlite';
 
+import { DEFAULT_DAILY_WATER_GOAL_ML } from '@lifestyle-os/shared/sync';
+import type { WaterLog } from '@lifestyle-os/shared/sync';
+
 import { useAuth } from '../auth/AuthContext';
 import {
+  ensureDefaultWaterGoal,
+  getActiveWaterGoal,
+  setDailyWaterGoal,
+} from '../db/waterGoals';
+import {
+  getDailyWaterTotals,
   getLastSyncedAt,
   getPendingSyncCount,
   getTodayWaterLogs,
   getTodayWaterTotalMl,
   insertWaterLogLocal,
-  migrateLocalSchema,
+  type DailyWaterTotal,
 } from '../db/waterLogs';
 import { getSupabase } from '../lib/supabase';
 import { formatError } from '../lib/errors';
 import { createSyncService } from '../sync';
-import type { WaterLog } from '@lifestyle-os/shared/sync';
 
 interface SyncContextValue {
   todayLogs: WaterLog[];
   todayTotalMl: number;
+  dailyGoalMl: number;
+  dailyTotals30d: DailyWaterTotal[];
   pendingCount: number;
   lastSyncedAt: string | null;
   syncing: boolean;
   syncError: string | null;
   logWater: (amountMl: number) => Promise<void>;
+  updateDailyGoal: (dailyTargetMl: number) => Promise<void>;
   syncNow: () => Promise<void>;
   refreshLocal: () => Promise<void>;
 }
@@ -43,6 +54,8 @@ export function SyncProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [todayLogs, setTodayLogs] = useState<WaterLog[]>([]);
   const [todayTotalMl, setTodayTotalMl] = useState(0);
+  const [dailyGoalMl, setDailyGoalMl] = useState(DEFAULT_DAILY_WATER_GOAL_ML);
+  const [dailyTotals30d, setDailyTotals30d] = useState<DailyWaterTotal[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
   const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
@@ -50,14 +63,19 @@ export function SyncProvider({ children }: { children: ReactNode }) {
 
   const refreshLocal = useCallback(async () => {
     if (!user) return;
-    const [logs, total, pending, synced] = await Promise.all([
+    await ensureDefaultWaterGoal(db, user.id);
+    const [logs, total, goal, chart, pending, synced] = await Promise.all([
       getTodayWaterLogs(db, user.id),
       getTodayWaterTotalMl(db, user.id),
+      getActiveWaterGoal(db, user.id),
+      getDailyWaterTotals(db, user.id, 30),
       getPendingSyncCount(db),
       getLastSyncedAt(db),
     ]);
     setTodayLogs(logs);
     setTodayTotalMl(total);
+    setDailyGoalMl(goal?.daily_target_ml ?? DEFAULT_DAILY_WATER_GOAL_ML);
+    setDailyTotals30d(chart);
     setPendingCount(pending);
     setLastSyncedAt(synced);
   }, [db, user]);
@@ -99,10 +117,22 @@ export function SyncProvider({ children }: { children: ReactNode }) {
     [db, user, refreshLocal, syncNow],
   );
 
+  const updateDailyGoal = useCallback(
+    async (dailyTargetMl: number) => {
+      if (!user) return;
+      await setDailyWaterGoal(db, user.id, dailyTargetMl);
+      await refreshLocal();
+      void syncNow();
+    },
+    [db, user, refreshLocal, syncNow],
+  );
+
   useEffect(() => {
     if (!user) {
       setTodayLogs([]);
       setTodayTotalMl(0);
+      setDailyGoalMl(DEFAULT_DAILY_WATER_GOAL_ML);
+      setDailyTotals30d([]);
       setPendingCount(0);
       setLastSyncedAt(null);
       return;
@@ -125,22 +155,28 @@ export function SyncProvider({ children }: { children: ReactNode }) {
     () => ({
       todayLogs,
       todayTotalMl,
+      dailyGoalMl,
+      dailyTotals30d,
       pendingCount,
       lastSyncedAt,
       syncing,
       syncError,
       logWater,
+      updateDailyGoal,
       syncNow,
       refreshLocal,
     }),
     [
       todayLogs,
       todayTotalMl,
+      dailyGoalMl,
+      dailyTotals30d,
       pendingCount,
       lastSyncedAt,
       syncing,
       syncError,
       logWater,
+      updateDailyGoal,
       syncNow,
       refreshLocal,
     ],
@@ -154,5 +190,3 @@ export function useSync(): SyncContextValue {
   if (!ctx) throw new Error('useSync must be used within SyncProvider');
   return ctx;
 }
-
-export { migrateLocalSchema };

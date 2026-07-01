@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { useAuth } from '../auth/AuthContext';
+import { useAppLock } from '../auth/AppLockContext';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Input } from '../components/Input';
@@ -19,6 +20,7 @@ export function SettingsScreen() {
   const [waterUnit, setWaterUnit] = useState(profile?.water_unit ?? 'ml');
   const [notifications, setNotifications] = useState(false);
   const [saving, setSaving] = useState(false);
+  const { lockEnabled, biometricAvailable, biometricLabel, setLockEnabled } = useAppLock();
 
   const handleSave = async () => {
     if (!user) return;
@@ -42,6 +44,17 @@ export function SettingsScreen() {
 
   const toggleWeightUnit = () => {
     setWeightUnit((u) => (u === 'kg' ? 'lbs' : 'kg'));
+  };
+
+  const handleBiometricToggle = async (next: boolean) => {
+    try {
+      await setLockEnabled(next);
+    } catch (err) {
+      Alert.alert(
+        'App lock',
+        err instanceof Error ? err.message : 'Could not update app lock.',
+      );
+    }
   };
 
   return (
@@ -82,6 +95,26 @@ export function SettingsScreen() {
         />
       </Card>
 
+      <Card>
+        <Text style={styles.cardTitle}>Security</Text>
+        <View style={styles.switchRow}>
+          <View style={styles.switchCopy}>
+            <Text style={styles.switchLabel}>App lock ({biometricLabel})</Text>
+            <Text style={styles.hint}>
+              {biometricAvailable
+                ? 'Require unlock when returning to the app'
+                : 'Set up fingerprint or face unlock on this device first'}
+            </Text>
+          </View>
+          <Switch
+            value={lockEnabled}
+            onValueChange={(v) => void handleBiometricToggle(v)}
+            disabled={!biometricAvailable}
+            trackColor={{ true: colors.accent, false: colors.border }}
+          />
+        </View>
+      </Card>
+
       <Button label="Sign out" variant="ghost" onPress={() => void signOut()} />
     </ScrollView>
   );
@@ -96,7 +129,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: spacing.sm,
+    gap: spacing.md,
   },
+  switchCopy: { flex: 1 },
   switchLabel: { color: colors.text, fontSize: 16 },
   hint: { color: colors.textDim, fontSize: 12, marginBottom: spacing.md },
   saveBtn: { marginTop: spacing.sm },

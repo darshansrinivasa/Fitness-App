@@ -19,7 +19,8 @@
     "plugins": [
       "expo-secure-store",
       "expo-sqlite",
-      "expo-web-browser"
+      "expo-web-browser",
+      "expo-local-authentication"
     ]
   }
 }

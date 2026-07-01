@@ -1301,13 +1301,17 @@ Phases are **vertical slices** — each slice delivers a shippable increment. Bu
 - [x] JSON, Markdown, PDF, and "Export for ChatGPT" formats
 - [x] Date range and module selection for exports
 
-### Slice 6 — Platforms & AI
-- [ ] Web app parity (SQLite WASM for offline, shared query layer)
+### Slice 6 — Platforms & AI (phased)
+
+**Phase 6a — Mobile polish (current)**
+- [x] Custom GPT export format + setup docs
+- [x] Biometric app lock (mobile)
+- [ ] Android UX iteration & fixes (after user testing)
+
+**Phase 6b — Later**
 - [ ] iOS support (Expo)
 - [ ] Desktop app (Electron)
-- [ ] Custom GPT with system prompt and schema knowledge
-- [ ] Test export → GPT analysis loop
-- [ ] Biometric app lock
+- [ ] Web app parity (SQLite WASM for offline, shared query layer)
 - [ ] Wearable integration (consideration)
 
 ---

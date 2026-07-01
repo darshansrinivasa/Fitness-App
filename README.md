@@ -82,8 +82,8 @@ pnpm mobile
 
 ## Current slice
 
-**Slice 5 — Analytics & export:** Insights tab with daily/weekly/monthly reports, charts, habit heatmap, photo comparison, and multi-format export (JSON, Markdown, PDF, ChatGPT).
+**Slice 6a (in progress):** Custom GPT export + biometric app lock on Android. iOS, desktop, and web parity come after Android UX is finalised.
 
-See [docs/EXPORT_FORMAT.md](./docs/EXPORT_FORMAT.md) for the export schema.
+See [docs/CUSTOM_GPT.md](./docs/CUSTOM_GPT.md) for GPT setup and [docs/EXPORT_FORMAT.md](./docs/EXPORT_FORMAT.md) for the export schema.
 
 See [PLAN.md](./PLAN.md) for the full roadmap and [docs/SYNC.md](./docs/SYNC.md) for sync architecture.

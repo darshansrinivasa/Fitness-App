@@ -6,13 +6,30 @@ import { SQLiteProvider } from 'expo-sqlite';
 import * as Linking from 'expo-linking';
 
 import { AuthProvider, useAuth } from './src/auth/AuthContext';
+import { AppLockProvider, useAppLock } from './src/auth/AppLockContext';
 import { handleAuthCallbackUrl } from './src/auth/googleSignIn';
 import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { migrateLocalSchema } from './src/db/migrate';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { RootTabs } from './src/navigation/RootTabs';
+import { LockScreen } from './src/screens/LockScreen';
 import { AppSyncProvider } from './src/sync/AppSyncContext';
 import { colors, spacing } from './src/theme/tokens';
+
+function AuthenticatedApp() {
+  const { locked } = useAppLock();
+
+  return (
+    <>
+      <AppSyncProvider>
+        <NavigationContainer>
+          <RootTabs />
+        </NavigationContainer>
+      </AppSyncProvider>
+      {locked ? <LockScreen /> : null}
+    </>
+  );
+}
 
 function RootNavigator() {
   const { session, loading, authError, retryInit } = useAuth();
@@ -57,11 +74,9 @@ function RootNavigator() {
   }
 
   return (
-    <AppSyncProvider>
-      <NavigationContainer>
-        <RootTabs />
-      </NavigationContainer>
-    </AppSyncProvider>
+    <AppLockProvider>
+      <AuthenticatedApp />
+    </AppLockProvider>
   );
 }
 

@@ -53,7 +53,7 @@ export function ExportScreen() {
   const [preset, setPreset] = useState<DateRangePreset>('month');
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
-  const [format, setFormat] = useState<ExportFormat>('json');
+  const [format, setFormat] = useState<ExportFormat>('chatgpt');
   const [selectedModules, setSelectedModules] = useState<ExportModule[]>([...EXPORT_MODULES]);
   const [includePhotos, setIncludePhotos] = useState(true);
   const [exporting, setExporting] = useState(false);
@@ -133,6 +133,15 @@ export function ExportScreen() {
       </Card>
 
       <Card>
+        <Text style={styles.cardTitle}>Custom GPT</Text>
+        <Text style={styles.helpText}>
+          Use the ChatGPT format to upload data to a personal Custom GPT for coaching analysis.
+          Setup guide: docs/CUSTOM_GPT.md in the repo — paste gpt-system-prompt.txt as the GPT
+          instructions.
+        </Text>
+      </Card>
+
+      <Card>
         <Text style={styles.cardTitle}>Format</Text>
         <View style={styles.chipRow}>
           {FORMATS.map((f) => (
@@ -203,4 +212,5 @@ const styles = StyleSheet.create({
   },
   switchLabel: { color: colors.text, fontSize: 14 },
   hint: { color: colors.textDim, fontSize: 12, marginTop: spacing.xs },
+  helpText: { color: colors.textMuted, fontSize: 13, lineHeight: 20 },
 });

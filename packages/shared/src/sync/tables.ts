@@ -10,8 +10,17 @@ import {
   WORKOUT_SETS_TABLE,
   WORKOUTS_TABLE,
 } from '../schemas/slice2';
+import {
+  GOAL_CHECK_INS_TABLE,
+  GOALS_TABLE,
+  HABIT_LOGS_TABLE,
+  HABITS_TABLE,
+  SLEEP_LOGS_TABLE,
+  SUPPLEMENT_LOGS_TABLE,
+  SUPPLEMENTS_TABLE,
+} from '../schemas/slice3';
 
-/** All tables synced in the mobile offline-first app (Slices 0–2). */
+/** All tables synced in the mobile offline-first app. */
 export const SYNC_TABLES = [
   WATER_LOGS_TABLE,
   WATER_GOALS_TABLE,
@@ -23,6 +32,13 @@ export const SYNC_TABLES = [
   NUTRITION_GOALS_TABLE,
   WEIGHT_LOGS_TABLE,
   BODY_MEASUREMENTS_TABLE,
+  SLEEP_LOGS_TABLE,
+  HABITS_TABLE,
+  HABIT_LOGS_TABLE,
+  SUPPLEMENTS_TABLE,
+  SUPPLEMENT_LOGS_TABLE,
+  GOALS_TABLE,
+  GOAL_CHECK_INS_TABLE,
 ] as const;
 
 export type SyncTableName = (typeof SYNC_TABLES)[number];

@@ -14,6 +14,10 @@ const MODULES = [
   { key: 'Fitness', title: 'Fitness', subtitle: 'Workouts & sets', emoji: '🏋️' },
   { key: 'Nutrition', title: 'Nutrition', subtitle: 'Meals & macros', emoji: '🥗' },
   { key: 'Body', title: 'Body', subtitle: 'Weight & measurements', emoji: '📏' },
+  { key: 'Sleep', title: 'Sleep', subtitle: 'Duration & quality', emoji: '😴' },
+  { key: 'Habits', title: 'Habits', subtitle: 'Daily checklist', emoji: '✅' },
+  { key: 'Supplements', title: 'Supplements', subtitle: 'Daily intake', emoji: '💊' },
+  { key: 'Goals', title: 'Goals', subtitle: 'Progress tracking', emoji: '🎯' },
 ] as const;
 
 export function ModulesScreen() {

@@ -53,6 +53,41 @@ export {
   enqueueWeightLog,
   enqueueBodyMeasurement,
 } from './body';
+export {
+  SLEEP_LOGS_TABLE,
+  createSleepLog,
+  updateSleepLog,
+  calcSleepDurationMinutes,
+  enqueueSleepLog,
+} from './sleep';
+export {
+  HABITS_TABLE,
+  HABIT_LOGS_TABLE,
+  createHabit,
+  createHabitLog,
+  updateHabitLog,
+  enqueueHabit,
+  enqueueHabitLog,
+} from './habits';
+export {
+  SUPPLEMENTS_TABLE,
+  SUPPLEMENT_LOGS_TABLE,
+  createSupplement,
+  createSupplementLog,
+  updateSupplement,
+  enqueueSupplement,
+  enqueueSupplementLog,
+} from './supplements';
+export {
+  GOALS_TABLE,
+  GOAL_CHECK_INS_TABLE,
+  createGoal,
+  createGoalCheckIn,
+  updateGoal,
+  goalProgressPct,
+  enqueueGoal,
+  enqueueGoalCheckIn,
+} from './goals';
 export type { WaterLog } from '../schemas/waterLog';
 export type { WaterGoal } from '../schemas/waterGoal';
 export type {
@@ -65,3 +100,12 @@ export type {
   WeightLog,
   BodyMeasurement,
 } from '../schemas/slice2';
+export type {
+  SleepLog,
+  Habit,
+  HabitLog,
+  Supplement,
+  SupplementLog,
+  Goal,
+  GoalCheckIn,
+} from '../schemas/slice3';

@@ -1284,10 +1284,10 @@ Phases are **vertical slices** — each slice delivers a shippable increment. Bu
 - [x] Settings screen (profile, notifications, units)
 
 ### Slice 3 — Daily lifestyle modules
-- [ ] Sleep module (full)
-- [ ] Habits module (full)
-- [ ] Supplements module (full)
-- [ ] Goals module (full)
+- [x] Sleep module (full)
+- [x] Habits module (full)
+- [x] Supplements module (full)
+- [x] Goals module (full)
 
 ### Slice 4 — Health + media
 - [ ] Health records module (full)
@@ -1430,4 +1430,4 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 ---
 
-*Last updated: July 2026 — Slice 2 (Core trio)*
+*Last updated: July 2026 — Slice 3 (Daily lifestyle)*

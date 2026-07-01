@@ -246,5 +246,123 @@ export async function migrateLocalSchema(db: SQLiteDatabase): Promise<void> {
     `,
     );
     await db.execAsync('PRAGMA user_version = 6');
+    version = 6;
+  }
+
+  if (version < 7) {
+    await runSql(
+      db,
+      `
+      CREATE TABLE IF NOT EXISTS sleep_logs (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        sleep_date TEXT NOT NULL,
+        bedtime TEXT,
+        wake_time TEXT,
+        duration_minutes INTEGER,
+        quality_rating INTEGER,
+        notes TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS habits (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT,
+        icon TEXT,
+        color TEXT,
+        frequency TEXT NOT NULL DEFAULT 'daily',
+        frequency_days TEXT,
+        target_count INTEGER DEFAULT 1,
+        category TEXT,
+        is_active INTEGER DEFAULT 1,
+        sort_order INTEGER DEFAULT 0,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS habit_logs (
+        id TEXT PRIMARY KEY,
+        habit_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        logged_date TEXT NOT NULL,
+        count INTEGER DEFAULT 1,
+        notes TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS supplements (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        brand TEXT,
+        dose_amount REAL NOT NULL,
+        dose_unit TEXT NOT NULL,
+        frequency TEXT NOT NULL DEFAULT 'daily',
+        times_of_day TEXT,
+        notes TEXT,
+        is_active INTEGER DEFAULT 1,
+        stock_quantity INTEGER,
+        low_stock_threshold INTEGER DEFAULT 7,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS supplement_logs (
+        id TEXT PRIMARY KEY,
+        supplement_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        taken_at TEXT NOT NULL,
+        dose_amount REAL,
+        notes TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS goals (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        title TEXT NOT NULL,
+        description TEXT,
+        category TEXT NOT NULL,
+        metric TEXT,
+        start_value REAL,
+        target_value REAL,
+        current_value REAL,
+        unit TEXT,
+        deadline TEXT,
+        status TEXT DEFAULT 'active',
+        completed_at TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS goal_check_ins (
+        id TEXT PRIMARY KEY,
+        goal_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        checked_in_at TEXT NOT NULL,
+        value REAL,
+        notes TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE INDEX IF NOT EXISTS sleep_logs_user_date_idx ON sleep_logs (user_id, sleep_date);
+      CREATE INDEX IF NOT EXISTS habit_logs_habit_date_idx ON habit_logs (habit_id, logged_date);
+      CREATE INDEX IF NOT EXISTS supplement_logs_user_taken_idx ON supplement_logs (user_id, taken_at);
+    `,
+    );
+    await db.execAsync('PRAGMA user_version = 7');
   }
 }

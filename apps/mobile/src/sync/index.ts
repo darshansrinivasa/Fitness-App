@@ -1,8 +1,15 @@
 import {
   BODY_MEASUREMENTS_TABLE,
   FOODS_TABLE,
+  GOAL_CHECK_INS_TABLE,
+  GOALS_TABLE,
+  HABIT_LOGS_TABLE,
+  HABITS_TABLE,
   MEAL_LOGS_TABLE,
   NUTRITION_GOALS_TABLE,
+  SLEEP_LOGS_TABLE,
+  SUPPLEMENT_LOGS_TABLE,
+  SUPPLEMENTS_TABLE,
   SYNC_TABLES,
   SyncOrchestrator,
   WATER_GOALS_TABLE,
@@ -65,7 +72,55 @@ const REMOTE_COLUMNS: Record<string, readonly string[]> = {
     'left_calf_cm', 'right_calf_cm', 'neck_cm', 'shoulders_cm', 'notes',
     'created_at', 'updated_at', 'deleted_at', 'sync_version',
   ],
+  [SLEEP_LOGS_TABLE]: [
+    'id', 'user_id', 'sleep_date', 'bedtime', 'wake_time', 'duration_minutes',
+    'quality_rating', 'notes', 'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [HABITS_TABLE]: [
+    'id', 'user_id', 'name', 'description', 'icon', 'color', 'frequency',
+    'frequency_days', 'target_count', 'category', 'is_active', 'sort_order',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [HABIT_LOGS_TABLE]: [
+    'id', 'habit_id', 'user_id', 'logged_date', 'count', 'notes',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [SUPPLEMENTS_TABLE]: [
+    'id', 'user_id', 'name', 'brand', 'dose_amount', 'dose_unit', 'frequency',
+    'times_of_day', 'notes', 'is_active', 'stock_quantity', 'low_stock_threshold',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [SUPPLEMENT_LOGS_TABLE]: [
+    'id', 'supplement_id', 'user_id', 'taken_at', 'dose_amount', 'notes',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [GOALS_TABLE]: [
+    'id', 'user_id', 'title', 'description', 'category', 'metric',
+    'start_value', 'target_value', 'current_value', 'unit', 'deadline',
+    'status', 'completed_at', 'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [GOAL_CHECK_INS_TABLE]: [
+    'id', 'goal_id', 'user_id', 'checked_in_at', 'value', 'notes',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
 };
+
+const JSON_ARRAY_FIELDS = new Set(['frequency_days', 'times_of_day']);
+const BOOL_FIELDS = new Set(['is_active', 'is_favourite', 'is_pr']);
+
+function coerceForRemote(value: unknown, key: string): unknown {
+  if (JSON_ARRAY_FIELDS.has(key) && typeof value === 'string' && value) {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  }
+  if (BOOL_FIELDS.has(key) && typeof value === 'number') {
+    return value === 1;
+  }
+  return value;
+}
 
 function sanitizeRemoteRow(
   table: string,
@@ -74,7 +129,9 @@ function sanitizeRemoteRow(
   const columns = REMOTE_COLUMNS[table];
   if (columns) {
     return Object.fromEntries(
-      columns.filter((key) => key in row).map((key) => [key, row[key]]),
+      columns
+        .filter((key) => key in row)
+        .map((key) => [key, coerceForRemote(row[key], key)]),
     );
   }
   const { synced_at: _syncedAt, ...rest } = row;

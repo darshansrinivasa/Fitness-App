@@ -82,6 +82,6 @@ pnpm mobile
 
 ## Current slice
 
-**Slice 2 — Core trio:** Fitness, Nutrition, Body modules with tab navigation, home dashboard, and settings.
+**Slice 3 — Daily lifestyle:** Sleep, Habits, Supplements, and Goals modules with dashboard summaries.
 
 See [PLAN.md](./PLAN.md) for the full roadmap and [docs/SYNC.md](./docs/SYNC.md) for sync architecture.

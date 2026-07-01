@@ -6,6 +6,10 @@ export type ModulesStackParamList = {
   Fitness: undefined;
   Nutrition: undefined;
   Body: undefined;
+  Sleep: undefined;
+  Habits: undefined;
+  Supplements: undefined;
+  Goals: undefined;
 };
 
 export type RootTabParamList = {

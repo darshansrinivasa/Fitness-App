@@ -1,54 +1,32 @@
 import { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { useAuth } from '../auth/AuthContext';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { GoalEditorModal } from '../components/GoalEditorModal';
 import { screenStyles } from '../components/ScreenLayout';
 import { WaterChart } from '../components/WaterChart';
 import { WaterProgressRing } from '../components/WaterProgressRing';
-import { useSync } from '../sync/SyncContext';
+import { useWaterModule } from '../hooks/useWaterModule';
 import { colors, spacing } from '../theme/tokens';
 
 const PRESETS_ML = [200, 350, 500] as const;
 
 function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-function formatSyncedAt(iso: string | null): string {
-  if (!iso) return 'Never';
-  return new Date(iso).toLocaleString();
-}
-
-export function HomeScreen() {
-  const { user, profile, signOut } = useAuth();
+export function WaterScreen() {
   const {
     todayLogs,
     todayTotalMl,
     dailyGoalMl,
     dailyTotals30d,
-    pendingCount,
-    lastSyncedAt,
-    syncing,
-    syncError,
     logWater,
     updateDailyGoal,
-    syncNow,
-  } = useSync();
+  } = useWaterModule();
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [savingGoal, setSavingGoal] = useState(false);
-
-  const displayName =
-    profile?.full_name ||
-    (user?.user_metadata?.full_name as string | undefined) ||
-    (user?.user_metadata?.name as string | undefined) ||
-    user?.email ||
-    'User';
 
   const handleSaveGoal = async (goalMl: number) => {
     setSavingGoal(true);
@@ -62,24 +40,21 @@ export function HomeScreen() {
   return (
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
       <View style={screenStyles.header}>
-        <Text style={screenStyles.title}>Hi, {displayName}</Text>
-        <Text style={screenStyles.subtitle}>Slice 1 — Water</Text>
+        <Text style={screenStyles.title}>Water</Text>
+        <Text style={screenStyles.subtitle}>Hydration tracking</Text>
       </View>
 
       <Card>
-        <View style={styles.waterHeader}>
-          <Text style={styles.cardTitle}>Water today</Text>
+        <View style={styles.headerRow}>
+          <Text style={styles.cardTitle}>Today</Text>
           <Pressable onPress={() => setGoalModalOpen(true)}>
             <Text style={styles.goalLink}>Goal: {dailyGoalMl} ml</Text>
           </Pressable>
         </View>
-
         <WaterProgressRing currentMl={todayTotalMl} goalMl={dailyGoalMl} />
-
         <Text style={styles.total}>
           {todayTotalMl} / {dailyGoalMl} ml
         </Text>
-
         <View style={styles.presets}>
           {PRESETS_ML.map((ml) => (
             <Button
@@ -112,21 +87,6 @@ export function HomeScreen() {
         )}
       </Card>
 
-      <Card>
-        <Text style={styles.cardTitle}>Sync</Text>
-        <Text style={styles.meta}>Pending: {pendingCount}</Text>
-        <Text style={styles.meta}>Last synced: {formatSyncedAt(lastSyncedAt)}</Text>
-        {syncError ? <Text style={styles.error}>{syncError}</Text> : null}
-        <Button
-          label={syncing ? 'Syncing…' : 'Sync now'}
-          loading={syncing}
-          onPress={() => void syncNow()}
-          style={styles.syncButton}
-        />
-      </Card>
-
-      <Button label="Sign out" variant="ghost" onPress={() => void signOut()} />
-
       <GoalEditorModal
         visible={goalModalOpen}
         currentGoalMl={dailyGoalMl}
@@ -141,22 +101,14 @@ export function HomeScreen() {
 const styles = StyleSheet.create({
   scroll: { flex: 1, backgroundColor: colors.bg },
   content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
-  waterHeader: {
+  headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: spacing.md,
   },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: colors.text,
-  },
-  goalLink: {
-    fontSize: 14,
-    color: colors.accent,
-    fontWeight: '600',
-  },
+  cardTitle: { fontSize: 18, fontWeight: '600', color: colors.text },
+  goalLink: { fontSize: 14, color: colors.accent, fontWeight: '600' },
   total: {
     fontSize: 18,
     fontWeight: '600',
@@ -165,27 +117,9 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     marginBottom: spacing.lg,
   },
-  meta: {
-    fontSize: 14,
-    color: colors.textMuted,
-    marginBottom: spacing.xs,
-  },
-  error: {
-    fontSize: 14,
-    color: colors.danger,
-    marginBottom: spacing.sm,
-  },
-  presets: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  presetButton: {
-    flex: 1,
-    paddingHorizontal: spacing.sm,
-  },
-  syncButton: {
-    marginTop: spacing.sm,
-  },
+  meta: { fontSize: 14, color: colors.textMuted },
+  presets: { flexDirection: 'row', gap: spacing.sm },
+  presetButton: { flex: 1, paddingHorizontal: spacing.sm },
   logRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -193,9 +127,5 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  logAmount: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '500',
-  },
+  logAmount: { color: colors.text, fontSize: 16, fontWeight: '500' },
 });

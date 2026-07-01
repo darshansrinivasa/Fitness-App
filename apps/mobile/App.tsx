@@ -1,3 +1,4 @@
+import { NavigationContainer } from '@react-navigation/native';
 import { useState, type ReactNode } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
@@ -7,10 +8,10 @@ import * as Linking from 'expo-linking';
 import { AuthProvider, useAuth } from './src/auth/AuthContext';
 import { handleAuthCallbackUrl } from './src/auth/googleSignIn';
 import { ErrorBoundary } from './src/components/ErrorBoundary';
-import { migrateLocalSchema } from './src/db/waterLogs';
+import { migrateLocalSchema } from './src/db/migrate';
 import { AuthScreen } from './src/screens/AuthScreen';
-import { HomeScreen } from './src/screens/HomeScreen';
-import { SyncProvider } from './src/sync/SyncContext';
+import { RootTabs } from './src/navigation/RootTabs';
+import { AppSyncProvider } from './src/sync/AppSyncContext';
 import { colors, spacing } from './src/theme/tokens';
 
 function RootNavigator() {
@@ -56,9 +57,11 @@ function RootNavigator() {
   }
 
   return (
-    <SyncProvider>
-      <HomeScreen />
-    </SyncProvider>
+    <AppSyncProvider>
+      <NavigationContainer>
+        <RootTabs />
+      </NavigationContainer>
+    </AppSyncProvider>
   );
 }
 

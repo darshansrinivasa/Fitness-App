@@ -1277,11 +1277,11 @@ Phases are **vertical slices** — each slice delivers a shippable increment. Bu
 - [x] Basic 30-day water chart
 
 ### Slice 2 — Core trio (Fitness identity)
-- [ ] Fitness module (full)
-- [ ] Nutrition module (full) — user-created foods first; Open Food Facts barcode later
-- [ ] Body measurements module (full)
-- [ ] Home dashboard with quick log for core modules
-- [ ] Settings screen (profile, notifications, units)
+- [x] Fitness module (full)
+- [x] Nutrition module (full) — user-created foods first; Open Food Facts barcode later
+- [x] Body measurements module (full)
+- [x] Home dashboard with quick log for core modules
+- [x] Settings screen (profile, notifications, units)
 
 ### Slice 3 — Daily lifestyle modules
 - [ ] Sleep module (full)
@@ -1430,4 +1430,4 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 ---
 
-*Last updated: July 2026 — Slice 1 (Water)*
+*Last updated: July 2026 — Slice 2 (Core trio)*

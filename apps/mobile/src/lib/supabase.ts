@@ -78,15 +78,28 @@ export interface Profile {
   id: string;
   full_name: string | null;
   water_unit: string | null;
+  weight_unit: string | null;
+  height_cm: number | null;
 }
 
 export async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await getSupabase()
     .from('profiles')
-    .select('id, full_name, water_unit')
+    .select('id, full_name, water_unit, weight_unit, height_cm')
     .eq('id', userId)
     .maybeSingle();
 
   if (error) throw error;
   return data;
+}
+
+export async function updateProfile(
+  userId: string,
+  patch: Partial<Pick<Profile, 'full_name' | 'water_unit' | 'weight_unit' | 'height_cm'>>,
+): Promise<void> {
+  const { error } = await getSupabase()
+    .from('profiles')
+    .update({ ...patch, updated_at: new Date().toISOString() })
+    .eq('id', userId);
+  if (error) throw error;
 }

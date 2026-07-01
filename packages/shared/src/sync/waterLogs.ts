@@ -1,5 +1,4 @@
 import { nextLocalVersion } from './conflict';
-import { WATER_GOALS_TABLE } from '../schemas/waterGoal';
 import {
   WATER_LOGS_TABLE,
   waterLogSchema,
@@ -87,6 +86,3 @@ export async function enqueueWaterLog(
     now.toISOString(),
   );
 }
-
-/** Tables registered for sync in the water module pilot. */
-export const PILOT_SYNC_TABLES = [WATER_LOGS_TABLE, WATER_GOALS_TABLE] as const;

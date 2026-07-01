@@ -10,6 +10,10 @@ export type ModulesStackParamList = {
   Habits: undefined;
   Supplements: undefined;
   Goals: undefined;
+  Health: undefined;
+  Photos: undefined;
+  Haircare: undefined;
+  Skincare: undefined;
 };
 
 export type RootTabParamList = {

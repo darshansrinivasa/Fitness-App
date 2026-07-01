@@ -1,17 +1,26 @@
 import {
   BODY_MEASUREMENTS_TABLE,
+  BREAKOUT_LOGS_TABLE,
   FOODS_TABLE,
   GOAL_CHECK_INS_TABLE,
   GOALS_TABLE,
+  HAIRCARE_LOGS_TABLE,
+  HAIRCARE_PRODUCTS_TABLE,
   HABIT_LOGS_TABLE,
   HABITS_TABLE,
   MEAL_LOGS_TABLE,
+  MEDICAL_RECORDS_TABLE,
   NUTRITION_GOALS_TABLE,
+  PROGRESS_PHOTOS_TABLE,
+  SKINCARE_LOGS_TABLE,
+  SKINCARE_PRODUCTS_TABLE,
   SLEEP_LOGS_TABLE,
   SUPPLEMENT_LOGS_TABLE,
   SUPPLEMENTS_TABLE,
+  SYMPTOMS_LOGS_TABLE,
   SYNC_TABLES,
   SyncOrchestrator,
+  VITALS_LOGS_TABLE,
   WATER_GOALS_TABLE,
   WATER_LOGS_TABLE,
   WEIGHT_LOGS_TABLE,
@@ -103,9 +112,56 @@ const REMOTE_COLUMNS: Record<string, readonly string[]> = {
     'id', 'goal_id', 'user_id', 'checked_in_at', 'value', 'notes',
     'created_at', 'updated_at', 'deleted_at', 'sync_version',
   ],
+  [VITALS_LOGS_TABLE]: [
+    'id', 'user_id', 'logged_at', 'systolic_bp', 'diastolic_bp', 'heart_rate_bpm',
+    'blood_sugar_mgdl', 'spo2_percent', 'body_temp_celsius', 'notes',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [MEDICAL_RECORDS_TABLE]: [
+    'id', 'user_id', 'record_date', 'record_type', 'title', 'description',
+    'doctor_name', 'clinic_name', 'attachments',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [SYMPTOMS_LOGS_TABLE]: [
+    'id', 'user_id', 'logged_date', 'symptom', 'severity', 'notes',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [PROGRESS_PHOTOS_TABLE]: [
+    'id', 'user_id', 'taken_date', 'angle', 'storage_path', 'weight_kg', 'notes',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [HAIRCARE_LOGS_TABLE]: [
+    'id', 'user_id', 'logged_date', 'log_type', 'products_used', 'duration_minutes',
+    'scalp_condition', 'hair_condition', 'shedding_level', 'notes',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [HAIRCARE_PRODUCTS_TABLE]: [
+    'id', 'user_id', 'name', 'type', 'brand', 'notes', 'is_active',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [SKINCARE_LOGS_TABLE]: [
+    'id', 'user_id', 'logged_date', 'routine_type', 'products_used',
+    'skin_hydration', 'skin_oiliness', 'skin_clarity', 'sensitivity', 'notes',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [BREAKOUT_LOGS_TABLE]: [
+    'id', 'user_id', 'logged_date', 'location', 'severity', 'suspected_cause', 'notes',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [SKINCARE_PRODUCTS_TABLE]: [
+    'id', 'user_id', 'name', 'brand', 'category', 'key_ingredients', 'routine_step',
+    'is_active', 'notes',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
 };
 
-const JSON_ARRAY_FIELDS = new Set(['frequency_days', 'times_of_day']);
+const JSON_ARRAY_FIELDS = new Set([
+  'frequency_days',
+  'times_of_day',
+  'products_used',
+  'attachments',
+  'key_ingredients',
+]);
 const BOOL_FIELDS = new Set(['is_active', 'is_favourite', 'is_pr']);
 
 function coerceForRemote(value: unknown, key: string): unknown {

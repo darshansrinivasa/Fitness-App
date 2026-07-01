@@ -364,5 +364,75 @@ export async function migrateLocalSchema(db: SQLiteDatabase): Promise<void> {
     `,
     );
     await db.execAsync('PRAGMA user_version = 7');
+    version = 7;
+  }
+
+  if (version < 8) {
+    await runSql(
+      db,
+      `
+      CREATE TABLE IF NOT EXISTS vitals_logs (
+        id TEXT PRIMARY KEY, user_id TEXT NOT NULL, logged_at TEXT NOT NULL,
+        systolic_bp INTEGER, diastolic_bp INTEGER, heart_rate_bpm INTEGER,
+        blood_sugar_mgdl REAL, spo2_percent REAL, body_temp_celsius REAL, notes TEXT,
+        created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS medical_records (
+        id TEXT PRIMARY KEY, user_id TEXT NOT NULL, record_date TEXT NOT NULL,
+        record_type TEXT NOT NULL, title TEXT NOT NULL, description TEXT,
+        doctor_name TEXT, clinic_name TEXT, attachments TEXT,
+        created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS symptoms_logs (
+        id TEXT PRIMARY KEY, user_id TEXT NOT NULL, logged_date TEXT NOT NULL,
+        symptom TEXT NOT NULL, severity INTEGER, notes TEXT,
+        created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS progress_photos (
+        id TEXT PRIMARY KEY, user_id TEXT NOT NULL, taken_date TEXT NOT NULL,
+        angle TEXT NOT NULL, storage_path TEXT NOT NULL, weight_kg REAL, notes TEXT,
+        created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS haircare_logs (
+        id TEXT PRIMARY KEY, user_id TEXT NOT NULL, logged_date TEXT NOT NULL,
+        log_type TEXT NOT NULL, products_used TEXT, duration_minutes INTEGER,
+        scalp_condition INTEGER, hair_condition INTEGER, shedding_level INTEGER, notes TEXT,
+        created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS haircare_products (
+        id TEXT PRIMARY KEY, user_id TEXT NOT NULL, name TEXT NOT NULL,
+        type TEXT, brand TEXT, notes TEXT, is_active INTEGER DEFAULT 1,
+        created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS skincare_logs (
+        id TEXT PRIMARY KEY, user_id TEXT NOT NULL, logged_date TEXT NOT NULL,
+        routine_type TEXT NOT NULL, products_used TEXT,
+        skin_hydration INTEGER, skin_oiliness INTEGER, skin_clarity INTEGER,
+        sensitivity INTEGER, notes TEXT,
+        created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS breakout_logs (
+        id TEXT PRIMARY KEY, user_id TEXT NOT NULL, logged_date TEXT NOT NULL,
+        location TEXT, severity INTEGER, suspected_cause TEXT, notes TEXT,
+        created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS skincare_products (
+        id TEXT PRIMARY KEY, user_id TEXT NOT NULL, name TEXT NOT NULL,
+        brand TEXT, category TEXT, key_ingredients TEXT, routine_step TEXT,
+        is_active INTEGER DEFAULT 1, notes TEXT,
+        created_at TEXT NOT NULL, updated_at TEXT NOT NULL, deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+    `,
+    );
+    await db.execAsync('PRAGMA user_version = 8');
   }
 }

@@ -1290,10 +1290,10 @@ Phases are **vertical slices** — each slice delivers a shippable increment. Bu
 - [x] Goals module (full)
 
 ### Slice 4 — Health + media
-- [ ] Health records module (full)
-- [ ] Progress photos module (full) — Supabase Storage + signed URLs
-- [ ] Haircare module (full)
-- [ ] Skincare module (full)
+- [x] Health records module (full)
+- [x] Progress photos module (full) — Supabase Storage + signed URLs
+- [x] Haircare module (full)
+- [x] Skincare module (full)
 
 ### Slice 5 — Analytics & export
 - [ ] Daily / weekly / monthly summary reports

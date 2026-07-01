@@ -18,6 +18,10 @@ const MODULES = [
   { key: 'Habits', title: 'Habits', subtitle: 'Daily checklist', emoji: '✅' },
   { key: 'Supplements', title: 'Supplements', subtitle: 'Daily intake', emoji: '💊' },
   { key: 'Goals', title: 'Goals', subtitle: 'Progress tracking', emoji: '🎯' },
+  { key: 'Health', title: 'Health', subtitle: 'Vitals & records', emoji: '🩺' },
+  { key: 'Photos', title: 'Photos', subtitle: 'Progress gallery', emoji: '📸' },
+  { key: 'Haircare', title: 'Haircare', subtitle: 'Routine & products', emoji: '💇' },
+  { key: 'Skincare', title: 'Skincare', subtitle: 'Routine & breakouts', emoji: '✨' },
 ] as const;
 
 export function ModulesScreen() {
@@ -27,7 +31,7 @@ export function ModulesScreen() {
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
       <View style={screenStyles.header}>
         <Text style={screenStyles.title}>Modules</Text>
-        <Text style={screenStyles.subtitle}>Core lifestyle tracking</Text>
+        <Text style={screenStyles.subtitle}>Health, media & grooming</Text>
       </View>
       <View style={styles.grid}>
         {MODULES.map((mod) => (

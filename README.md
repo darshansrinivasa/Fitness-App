@@ -82,6 +82,6 @@ pnpm mobile
 
 ## Current slice
 
-**Slice 3 — Daily lifestyle:** Sleep, Habits, Supplements, and Goals modules with dashboard summaries.
+**Slice 4 — Health + media:** Health records (vitals, symptoms, medical), progress photos with Supabase Storage, haircare, and skincare modules.
 
 See [PLAN.md](./PLAN.md) for the full roadmap and [docs/SYNC.md](./docs/SYNC.md) for sync architecture.

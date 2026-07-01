@@ -13,7 +13,9 @@ import { getTodayWorkoutCount } from '../db/fitness';
 import { ensureDefaultNutritionGoal, getActiveNutritionGoal, getTodayMacroTotals } from '../db/nutrition';
 import { getLatestWeight } from '../db/body';
 import { getActiveGoalsCount } from '../db/goals';
+import { getLatestHeartRate } from '../db/health';
 import { getTodayHabitsCompletedCount } from '../db/habits';
+import { getProgressPhotoCount } from '../db/photos';
 import { formatDuration, getLastSleepLog } from '../db/sleep';
 import { getTodaySupplementsTakenCount } from '../db/supplements';
 import { ensureDefaultWaterGoal } from '../db/waterGoals';
@@ -37,6 +39,8 @@ export function DashboardScreen() {
   const [habitsSummary, setHabitsSummary] = useState('0/0');
   const [supplementsSummary, setSupplementsSummary] = useState('0/0');
   const [activeGoals, setActiveGoals] = useState(0);
+  const [heartRate, setHeartRate] = useState<string>('—');
+  const [photoCount, setPhotoCount] = useState(0);
 
   const displayName =
     profile?.full_name ||
@@ -50,7 +54,7 @@ export function DashboardScreen() {
       ensureDefaultWaterGoal(db, user.id),
       ensureDefaultNutritionGoal(db, user.id),
     ]);
-    const [workoutCount, macros, goal, weight, lastSleep, habits, supps, goalsCount] =
+    const [workoutCount, macros, goal, weight, lastSleep, habits, supps, goalsCount, hr, photos] =
       await Promise.all([
       getTodayWorkoutCount(db, user.id),
       getTodayMacroTotals(db, user.id),
@@ -60,6 +64,8 @@ export function DashboardScreen() {
       getTodayHabitsCompletedCount(db, user.id),
       getTodaySupplementsTakenCount(db, user.id),
       getActiveGoalsCount(db, user.id),
+      getLatestHeartRate(db, user.id),
+      getProgressPhotoCount(db, user.id),
     ]);
     setWorkoutsToday(workoutCount);
     setCalories({ current: macros.calories, goal: goal?.calories ?? 2200 });
@@ -68,6 +74,8 @@ export function DashboardScreen() {
     setHabitsSummary(`${habits.done}/${habits.total}`);
     setSupplementsSummary(`${supps.done}/${supps.total}`);
     setActiveGoals(goalsCount);
+    setHeartRate(hr ? `${hr} bpm` : '—');
+    setPhotoCount(photos);
   }, [db, user]);
 
   useEffect(() => {
@@ -78,7 +86,7 @@ export function DashboardScreen() {
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
       <View style={screenStyles.header}>
         <Text style={screenStyles.title}>Hi, {displayName}</Text>
-        <Text style={screenStyles.subtitle}>Slice 3 — Dashboard</Text>
+        <Text style={screenStyles.subtitle}>Slice 4 — Dashboard</Text>
       </View>
 
       <Card>
@@ -154,6 +162,21 @@ export function DashboardScreen() {
           <Text style={styles.cardTitle}>Goals</Text>
           <Text style={styles.stat}>{activeGoals}</Text>
           <Text style={styles.meta}>active</Text>
+        </Card>
+      </View>
+
+      <View style={styles.grid}>
+        <Card style={styles.gridCard}>
+          <Text style={styles.cardTitle}>Health</Text>
+          <Text style={styles.statSmall}>{heartRate}</Text>
+          <Pressable onPress={() => navigation.navigate('Modules', { screen: 'Health' })}>
+            <Text style={styles.link}>Log vitals →</Text>
+          </Pressable>
+        </Card>
+        <Card style={styles.gridCard}>
+          <Text style={styles.cardTitle}>Photos</Text>
+          <Text style={styles.stat}>{photoCount}</Text>
+          <Text style={styles.meta}>progress shots</Text>
         </Card>
       </View>
 

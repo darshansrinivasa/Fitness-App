@@ -3,7 +3,13 @@ import type { SyncOperation } from '@lifestyle-os/shared';
 
 import { enqueueChange } from '../sync/sqliteStore';
 
-const JSON_ARRAY_KEYS = ['frequency_days', 'times_of_day'] as const;
+const JSON_ARRAY_KEYS = [
+  'frequency_days',
+  'times_of_day',
+  'products_used',
+  'attachments',
+  'key_ingredients',
+] as const;
 const BOOL_KEYS = ['is_active', 'is_favourite', 'is_pr'] as const;
 
 export function coerceForSqlite(row: Record<string, unknown>): Record<string, unknown> {

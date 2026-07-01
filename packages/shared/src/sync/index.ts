@@ -88,6 +88,42 @@ export {
   enqueueGoal,
   enqueueGoalCheckIn,
 } from './goals';
+export {
+  VITALS_LOGS_TABLE,
+  MEDICAL_RECORDS_TABLE,
+  SYMPTOMS_LOGS_TABLE,
+  createVitalsLog,
+  createSymptomLog,
+  createMedicalRecord,
+  enqueueVitalsLog,
+  enqueueSymptomLog,
+  enqueueMedicalRecord,
+} from './health';
+export {
+  PROGRESS_PHOTOS_TABLE,
+  PROGRESS_PHOTOS_BUCKET,
+  createProgressPhoto,
+  enqueueProgressPhoto,
+} from './photos';
+export {
+  HAIRCARE_LOGS_TABLE,
+  HAIRCARE_PRODUCTS_TABLE,
+  createHaircareLog,
+  createHaircareProduct,
+  enqueueHaircareLog,
+  enqueueHaircareProduct,
+} from './haircare';
+export {
+  SKINCARE_LOGS_TABLE,
+  BREAKOUT_LOGS_TABLE,
+  SKINCARE_PRODUCTS_TABLE,
+  createSkincareLog,
+  createBreakoutLog,
+  createSkincareProduct,
+  enqueueSkincareLog,
+  enqueueBreakoutLog,
+  enqueueSkincareProduct,
+} from './skincare';
 export type { WaterLog } from '../schemas/waterLog';
 export type { WaterGoal } from '../schemas/waterGoal';
 export type {
@@ -109,3 +145,14 @@ export type {
   Goal,
   GoalCheckIn,
 } from '../schemas/slice3';
+export type {
+  VitalsLog,
+  MedicalRecord,
+  SymptomLog,
+  ProgressPhoto,
+  HaircareLog,
+  HaircareProduct,
+  SkincareLog,
+  BreakoutLog,
+  SkincareProduct,
+} from '../schemas/slice4';

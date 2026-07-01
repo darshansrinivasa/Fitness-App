@@ -16,9 +16,15 @@ export type ModulesStackParamList = {
   Skincare: undefined;
 };
 
+export type InsightsStackParamList = {
+  Analytics: undefined;
+  Export: undefined;
+};
+
 export type RootTabParamList = {
   Home: undefined;
   Water: undefined;
   Modules: NavigatorScreenParams<ModulesStackParamList>;
+  Insights: NavigatorScreenParams<InsightsStackParamList>;
   Settings: undefined;
 };

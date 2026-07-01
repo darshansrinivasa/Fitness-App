@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { DashboardScreen } from '../screens/DashboardScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { WaterScreen } from '../screens/WaterScreen';
+import { InsightsStack } from './InsightsStack';
 import { ModulesStack } from './ModulesStack';
 import type { RootTabParamList } from './types';
 import { colors } from '../theme/tokens';
@@ -48,6 +49,16 @@ export function RootTabs() {
         options={{
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="grid-outline" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Insights"
+        component={InsightsStack}
+        options={{
+          tabBarLabel: 'Insights',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="bar-chart-outline" size={size} color={color} />
           ),
         }}
       />

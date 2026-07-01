@@ -1296,10 +1296,10 @@ Phases are **vertical slices** — each slice delivers a shippable increment. Bu
 - [x] Skincare module (full)
 
 ### Slice 5 — Analytics & export
-- [ ] Daily / weekly / monthly summary reports
-- [ ] Per-module charts, habit heatmap, photo comparison
-- [ ] JSON, Markdown, PDF, and "Export for ChatGPT" formats
-- [ ] Date range and module selection for exports
+- [x] Daily / weekly / monthly summary reports
+- [x] Per-module charts, habit heatmap, photo comparison
+- [x] JSON, Markdown, PDF, and "Export for ChatGPT" formats
+- [x] Date range and module selection for exports
 
 ### Slice 6 — Platforms & AI
 - [ ] Web app parity (SQLite WASM for offline, shared query layer)
@@ -1430,4 +1430,4 @@ EXPO_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
 ---
 
-*Last updated: July 2026 — Slice 3 (Daily lifestyle)*
+*Last updated: July 2026 — Slice 5 (Analytics & export)*

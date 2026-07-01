@@ -82,6 +82,8 @@ pnpm mobile
 
 ## Current slice
 
-**Slice 4 — Health + media:** Health records (vitals, symptoms, medical), progress photos with Supabase Storage, haircare, and skincare modules.
+**Slice 5 — Analytics & export:** Insights tab with daily/weekly/monthly reports, charts, habit heatmap, photo comparison, and multi-format export (JSON, Markdown, PDF, ChatGPT).
+
+See [docs/EXPORT_FORMAT.md](./docs/EXPORT_FORMAT.md) for the export schema.
 
 See [PLAN.md](./PLAN.md) for the full roadmap and [docs/SYNC.md](./docs/SYNC.md) for sync architecture.

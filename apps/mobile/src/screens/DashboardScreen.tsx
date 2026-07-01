@@ -86,7 +86,7 @@ export function DashboardScreen() {
     <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
       <View style={screenStyles.header}>
         <Text style={screenStyles.title}>Hi, {displayName}</Text>
-        <Text style={screenStyles.subtitle}>Slice 4 — Dashboard</Text>
+        <Text style={screenStyles.subtitle}>Slice 5 — Dashboard</Text>
       </View>
 
       <Card>

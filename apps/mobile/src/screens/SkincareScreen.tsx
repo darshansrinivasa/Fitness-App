@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -9,7 +9,7 @@ import { useAuth } from '../auth/AuthContext';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Input } from '../components/Input';
-import { screenStyles } from '../components/ScreenLayout';
+import { ScreenScroll, screenStyles } from '../components/ScreenLayout';
 import {
   addSkincareProduct,
   getBreakoutLogs,
@@ -88,7 +88,7 @@ export function SkincareScreen() {
   };
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <ScreenScroll>
       <Pressable onPress={() => navigation.goBack()} style={styles.back}>
         <Text style={styles.backText}>← Modules</Text>
       </Pressable>
@@ -190,7 +190,7 @@ export function SkincareScreen() {
           </Card>
         </>
       ) : null}
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
@@ -211,8 +211,6 @@ function RatingRow({ value, onChange }: { value: number; onChange: (n: number) =
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   back: { marginBottom: spacing.md },
   backText: { color: colors.accent, fontSize: 15, fontWeight: '600' },
   tabRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Modal,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -15,7 +14,7 @@ import { useAuth } from '../auth/AuthContext';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Input } from '../components/Input';
-import { screenStyles } from '../components/ScreenLayout';
+import { ScreenScroll, screenStyles } from '../components/ScreenLayout';
 import { addGoal, checkInGoal as saveGoalCheckIn, getActiveGoals, type GoalWithProgress } from '../db/goals';
 import type { ModulesStackParamList } from '../navigation/types';
 import { useAppSync } from '../sync/AppSyncContext';
@@ -78,7 +77,7 @@ export function GoalsScreen() {
   };
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <ScreenScroll>
       <Pressable onPress={() => navigation.goBack()} style={styles.back}>
         <Text style={styles.backText}>← Modules</Text>
       </Pressable>
@@ -154,13 +153,11 @@ export function GoalsScreen() {
           </View>
         </View>
       </Modal>
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   back: { marginBottom: spacing.sm },
   backText: { color: colors.accent, fontSize: 14, fontWeight: '600' },
   cardTitle: { fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: spacing.md },
@@ -192,7 +189,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  chipActive: { borderColor: colors.accent, backgroundColor: '#0c4a6e' },
+  chipActive: { borderColor: colors.accent, backgroundColor: colors.accentContainer + '33' },
   chipText: { color: colors.text, fontSize: 12 },
   row: { flexDirection: 'row', gap: spacing.sm },
   field: { flex: 1 },

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -15,7 +15,7 @@ import { useAuth } from '../auth/AuthContext';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Input } from '../components/Input';
-import { screenStyles } from '../components/ScreenLayout';
+import { ScreenScroll, screenStyles } from '../components/ScreenLayout';
 import { gatherLifestyleExport } from '../db/analytics';
 import { shareExport } from '../lib/exportFile';
 import type { InsightsStackParamList } from '../navigation/types';
@@ -102,7 +102,7 @@ export function ExportScreen() {
   };
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <ScreenScroll>
       <Pressable onPress={() => navigation.goBack()} style={styles.back}>
         <Text style={styles.backText}>← Analytics</Text>
       </Pressable>
@@ -185,13 +185,11 @@ export function ExportScreen() {
         loading={exporting}
         onPress={() => void handleExport()}
       />
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   back: { marginBottom: spacing.md },
   backText: { color: colors.accent, fontSize: 15, fontWeight: '600' },
   cardTitle: { fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: spacing.sm },

@@ -4,7 +4,6 @@ import {
   Alert,
   Image,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -19,7 +18,7 @@ import { useAuth } from '../auth/AuthContext';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Input } from '../components/Input';
-import { screenStyles } from '../components/ScreenLayout';
+import { ScreenScroll, screenStyles } from '../components/ScreenLayout';
 import { addProgressPhoto, getProgressPhotos } from '../db/photos';
 import { getSignedPhotoUrl } from '../lib/photoStorage';
 import type { ModulesStackParamList } from '../navigation/types';
@@ -95,7 +94,7 @@ export function PhotosScreen() {
   };
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <ScreenScroll>
       <Pressable onPress={() => navigation.goBack()} style={styles.back}>
         <Text style={styles.backText}>← Modules</Text>
       </Pressable>
@@ -154,13 +153,11 @@ export function PhotosScreen() {
           </View>
         )}
       </Card>
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   back: { marginBottom: spacing.md },
   backText: { color: colors.accent, fontSize: 15, fontWeight: '600' },
   cardTitle: { fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: spacing.sm },

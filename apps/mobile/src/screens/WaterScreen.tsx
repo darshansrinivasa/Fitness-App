@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { ScrollView, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import type { WaterLog } from '@lifestyle-os/shared/sync';
 
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { GoalEditorModal } from '../components/GoalEditorModal';
-import { screenStyles } from '../components/ScreenLayout';
+import { ScreenScroll, screenStyles } from '../components/ScreenLayout';
 import { WaterChart } from '../components/WaterChart';
+import { WaterLogEditorModal } from '../components/WaterLogEditorModal';
 import { WaterProgressRing } from '../components/WaterProgressRing';
 import { useWaterModule } from '../hooks/useWaterModule';
 import { colors, spacing } from '../theme/tokens';
@@ -24,9 +27,13 @@ export function WaterScreen() {
     dailyTotals30d,
     logWater,
     updateDailyGoal,
+    updateWaterEntry,
+    deleteWaterEntry,
   } = useWaterModule();
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [savingGoal, setSavingGoal] = useState(false);
+  const [editingLog, setEditingLog] = useState<WaterLog | null>(null);
+  const [savingLog, setSavingLog] = useState(false);
 
   const handleSaveGoal = async (goalMl: number) => {
     setSavingGoal(true);
@@ -37,8 +44,33 @@ export function WaterScreen() {
     }
   };
 
+  const handleSaveLog = async (amountMl: number) => {
+    if (!editingLog) return;
+    setSavingLog(true);
+    try {
+      await updateWaterEntry(editingLog.id, amountMl);
+    } finally {
+      setSavingLog(false);
+    }
+  };
+
+  const confirmDelete = (log: WaterLog) => {
+    Alert.alert(
+      'Delete entry?',
+      `Remove ${log.amount_ml} ml logged at ${formatTime(log.logged_at)}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => void deleteWaterEntry(log.id),
+        },
+      ],
+    );
+  };
+
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <ScreenScroll>
       <View style={screenStyles.header}>
         <Text style={screenStyles.title}>Water</Text>
         <Text style={screenStyles.subtitle}>Hydration tracking</Text>
@@ -80,8 +112,26 @@ export function WaterScreen() {
         ) : (
           todayLogs.map((log) => (
             <View key={log.id} style={styles.logRow}>
-              <Text style={styles.logAmount}>{log.amount_ml} ml</Text>
-              <Text style={styles.meta}>{formatTime(log.logged_at)}</Text>
+              <View style={styles.logInfo}>
+                <Text style={styles.logAmount}>{log.amount_ml} ml</Text>
+                <Text style={styles.meta}>{formatTime(log.logged_at)}</Text>
+              </View>
+              <View style={styles.logActions}>
+                <Pressable
+                  onPress={() => setEditingLog(log)}
+                  hitSlop={8}
+                  accessibilityLabel={`Edit ${log.amount_ml} ml entry`}
+                >
+                  <Ionicons name="pencil-outline" size={20} color={colors.accent} />
+                </Pressable>
+                <Pressable
+                  onPress={() => confirmDelete(log)}
+                  hitSlop={8}
+                  accessibilityLabel={`Delete ${log.amount_ml} ml entry`}
+                >
+                  <Ionicons name="trash-outline" size={20} color={colors.danger} />
+                </Pressable>
+              </View>
             </View>
           ))
         )}
@@ -94,13 +144,19 @@ export function WaterScreen() {
         onClose={() => setGoalModalOpen(false)}
         onSave={handleSaveGoal}
       />
-    </ScrollView>
+
+      <WaterLogEditorModal
+        visible={editingLog !== null}
+        currentAmountMl={editingLog?.amount_ml ?? 0}
+        saving={savingLog}
+        onClose={() => setEditingLog(null)}
+        onSave={handleSaveLog}
+      />
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   headerRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -123,9 +179,21 @@ const styles = StyleSheet.create({
   logRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  logInfo: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
   logAmount: { color: colors.text, fontSize: 16, fontWeight: '500' },
+  logActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
 });

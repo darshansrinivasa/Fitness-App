@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -14,7 +14,7 @@ import { useAuth } from '../auth/AuthContext';
 import { Card } from '../components/Card';
 import { HabitHeatmap } from '../components/HabitHeatmap';
 import { PhotoComparison } from '../components/PhotoComparison';
-import { screenStyles } from '../components/ScreenLayout';
+import { ScreenScroll, screenStyles } from '../components/ScreenLayout';
 import { WaterChart } from '../components/WaterChart';
 import { WeightChart } from '../components/WeightChart';
 import {
@@ -114,7 +114,7 @@ export function AnalyticsScreen() {
   }, [reload, refreshKey]);
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <ScreenScroll>
       <View style={screenStyles.header}>
         <Text style={screenStyles.title}>Analytics</Text>
         <Text style={screenStyles.subtitle}>{summaryHeadline}</Text>
@@ -165,13 +165,11 @@ export function AnalyticsScreen() {
         <Text style={styles.cardTitle}>Photo comparison</Text>
         <PhotoComparison {...photoCompare} />
       </Card>
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   tabRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
   tabBtn: {
     flex: 1,

@@ -1,6 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { SQLiteProvider } from 'expo-sqlite';
 import * as Linking from 'expo-linking';
@@ -93,7 +94,7 @@ function AppTree() {
   return (
     <AuthProvider>
       <RootNavigator />
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
     </AuthProvider>
   );
 }
@@ -112,22 +113,24 @@ export default function App() {
   }
 
   return (
-    <ErrorBoundary>
-      {!dbReady ? <LoadingScreen /> : null}
-      <SQLiteProvider
-        databaseName="lifestyle.db"
-        onInit={async (db) => {
-          await migrateLocalSchema(db);
-          setDbReady(true);
-        }}
-        onError={(error) => {
-          console.error('SQLite init error:', error);
-          setDbError(error.message);
-        }}
-      >
-        {dbReady ? <AppTree /> : null}
-      </SQLiteProvider>
-    </ErrorBoundary>
+    <SafeAreaProvider>
+      <ErrorBoundary>
+        {!dbReady ? <LoadingScreen /> : null}
+        <SQLiteProvider
+          databaseName="lifestyle.db"
+          onInit={async (db) => {
+            await migrateLocalSchema(db);
+            setDbReady(true);
+          }}
+          onError={(error) => {
+            console.error('SQLite init error:', error);
+            setDbError(error.message);
+          }}
+        >
+          {dbReady ? <AppTree /> : null}
+        </SQLiteProvider>
+      </ErrorBoundary>
+    </SafeAreaProvider>
   );
 }
 

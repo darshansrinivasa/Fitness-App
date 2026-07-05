@@ -7,17 +7,19 @@ import {
   Text,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '../auth/AuthContext';
 import { getOAuthRedirectUri } from '../auth/googleSignIn';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Input } from '../components/Input';
-import { screenStyles } from '../components/ScreenLayout';
+import { screenStyles, useScreenContentStyle } from '../components/ScreenLayout';
 import { colors, spacing } from '../theme/tokens';
 
 export function AuthScreen() {
   const { signInWithGoogle, signIn, signUp } = useAuth();
+  const screenPadding = useScreenContentStyle();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showEmailForm, setShowEmailForm] = useState(false);
@@ -54,14 +56,15 @@ export function AuthScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.scroll}
-        keyboardShouldPersistTaps="handled"
+    <SafeAreaView style={styles.flex} edges={['top']}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
+        <ScrollView
+          contentContainerStyle={[styles.scroll, screenPadding]}
+          keyboardShouldPersistTaps="handled"
+        >
         <View style={screenStyles.header}>
           <Text style={screenStyles.title}>Lifestyle OS</Text>
           <Text style={screenStyles.subtitle}>Sign in to sync your health data</Text>
@@ -126,8 +129,9 @@ export function AuthScreen() {
             {getOAuthRedirectUri()}
           </Text>
         ) : null}
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -136,7 +140,6 @@ const styles = StyleSheet.create({
   scroll: {
     flexGrow: 1,
     justifyContent: 'center',
-    padding: spacing.xl,
   },
   error: {
     color: colors.danger,

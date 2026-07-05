@@ -7,10 +7,12 @@ import type { WaterLog } from '@lifestyle-os/shared/sync';
 import { useAuth } from '../auth/AuthContext';
 import { ensureDefaultWaterGoal, getActiveWaterGoal, setDailyWaterGoal } from '../db/waterGoals';
 import {
+  deleteWaterLogLocal,
   getDailyWaterTotals,
   getTodayWaterLogs,
   getTodayWaterTotalMl,
   insertWaterLogLocal,
+  updateWaterLogLocal,
   type DailyWaterTotal,
 } from '../db/waterLogs';
 import { useAppSync } from '../sync/AppSyncContext';
@@ -63,6 +65,30 @@ export function useWaterModule() {
     [db, user, reload, afterLocalWrite],
   );
 
+  const updateWaterEntry = useCallback(
+    async (logId: string, amountMl: number) => {
+      if (!user) return false;
+      const updated = await updateWaterLogLocal(db, user.id, logId, amountMl);
+      if (!updated) return false;
+      await reload();
+      await afterLocalWrite();
+      return true;
+    },
+    [db, user, reload, afterLocalWrite],
+  );
+
+  const deleteWaterEntry = useCallback(
+    async (logId: string) => {
+      if (!user) return false;
+      const deleted = await deleteWaterLogLocal(db, user.id, logId);
+      if (!deleted) return false;
+      await reload();
+      await afterLocalWrite();
+      return true;
+    },
+    [db, user, reload, afterLocalWrite],
+  );
+
   return {
     todayLogs,
     todayTotalMl,
@@ -70,6 +96,8 @@ export function useWaterModule() {
     dailyTotals30d,
     logWater,
     updateDailyGoal,
+    updateWaterEntry,
+    deleteWaterEntry,
     reload,
   };
 }

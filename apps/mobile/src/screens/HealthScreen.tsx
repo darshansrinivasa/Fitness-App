@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import {
   Alert,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   View,
@@ -16,7 +15,7 @@ import { useAuth } from '../auth/AuthContext';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Input } from '../components/Input';
-import { screenStyles } from '../components/ScreenLayout';
+import { ScreenScroll, screenStyles } from '../components/ScreenLayout';
 import {
   addMedicalRecord,
   getLatestHeartRate,
@@ -121,7 +120,7 @@ export function HealthScreen() {
   };
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <ScreenScroll>
       <Pressable onPress={() => navigation.goBack()} style={styles.back}>
         <Text style={styles.backText}>← Modules</Text>
       </Pressable>
@@ -237,13 +236,11 @@ export function HealthScreen() {
           </Card>
         </>
       ) : null}
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   back: { marginBottom: spacing.md },
   backText: { color: colors.accent, fontSize: 15, fontWeight: '600' },
   tabRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },

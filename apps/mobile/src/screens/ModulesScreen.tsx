@@ -1,9 +1,9 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { Card } from '../components/Card';
-import { screenStyles } from '../components/ScreenLayout';
+import { ScreenScroll, screenStyles } from '../components/ScreenLayout';
 import type { ModulesStackParamList } from '../navigation/types';
 import { colors, spacing } from '../theme/tokens';
 
@@ -28,7 +28,7 @@ export function ModulesScreen() {
   const navigation = useNavigation<Nav>();
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <ScreenScroll>
       <View style={screenStyles.header}>
         <Text style={screenStyles.title}>Modules</Text>
         <Text style={screenStyles.subtitle}>Health, media & grooming</Text>
@@ -48,13 +48,11 @@ export function ModulesScreen() {
           </Pressable>
         ))}
       </View>
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   tilePress: { width: '47%' },
   emoji: { fontSize: 28, marginBottom: spacing.sm },

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -7,7 +7,7 @@ import { useSQLiteContext } from 'expo-sqlite';
 import { useAuth } from '../auth/AuthContext';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
-import { screenStyles } from '../components/ScreenLayout';
+import { screenStyles, ScreenScroll } from '../components/ScreenLayout';
 import { WaterProgressRing } from '../components/WaterProgressRing';
 import { getTodayWorkoutCount } from '../db/fitness';
 import { ensureDefaultNutritionGoal, getActiveNutritionGoal, getTodayMacroTotals } from '../db/nutrition';
@@ -26,9 +26,13 @@ import { colors, spacing } from '../theme/tokens';
 
 type Nav = BottomTabNavigationProp<RootTabParamList, 'Home'>;
 
+function formatTime(iso: string): string {
+  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
 export function DashboardScreen() {
   const { user, profile } = useAuth();
-  const { logWater, todayTotalMl, dailyGoalMl } = useWaterModule();
+  const { logWater, todayTotalMl, dailyGoalMl, todayLogs, deleteWaterEntry } = useWaterModule();
   const { pendingCount, syncing, syncError, syncNow, refreshKey } = useAppSync();
   const navigation = useNavigation<Nav>();
   const db = useSQLiteContext();
@@ -83,7 +87,7 @@ export function DashboardScreen() {
   }, [reload, refreshKey]);
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <ScreenScroll>
       <View style={screenStyles.header}>
         <Text style={screenStyles.title}>Hi, {displayName}</Text>
         <Text style={screenStyles.subtitle}>Slice 5 — Dashboard</Text>
@@ -96,6 +100,16 @@ export function DashboardScreen() {
           <Button label="+350 ml" variant="secondary" onPress={() => void logWater(350)} style={styles.quickBtn} />
           <Button label="+500 ml" variant="secondary" onPress={() => void logWater(500)} style={styles.quickBtn} />
         </View>
+        {todayLogs.length > 0 ? (
+          <View style={styles.lastWaterRow}>
+            <Text style={styles.meta}>
+              Last: {todayLogs[0].amount_ml} ml at {formatTime(todayLogs[0].logged_at)}
+            </Text>
+            <Pressable onPress={() => void deleteWaterEntry(todayLogs[0].id)}>
+              <Text style={styles.undoLink}>Undo</Text>
+            </Pressable>
+          </View>
+        ) : null}
         <View style={styles.quickLinks}>
           <Pressable onPress={() => navigation.navigate('Modules', { screen: 'Fitness' })}>
             <Text style={styles.link}>Log workout →</Text>
@@ -191,16 +205,21 @@ export function DashboardScreen() {
           style={styles.syncBtn}
         />
       </Card>
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   cardTitle: { fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: spacing.sm },
   quickRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
   quickBtn: { flex: 1, paddingHorizontal: spacing.xs },
+  lastWaterRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.md,
+  },
+  undoLink: { color: colors.danger, fontSize: 14, fontWeight: '600' },
   quickLinks: { gap: spacing.xs },
   link: { color: colors.accent, fontSize: 14, fontWeight: '600' },
   grid: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md },

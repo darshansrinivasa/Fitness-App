@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -8,7 +8,7 @@ import { useAuth } from '../auth/AuthContext';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Input } from '../components/Input';
-import { screenStyles } from '../components/ScreenLayout';
+import { ScreenScroll, screenStyles } from '../components/ScreenLayout';
 import {
   addSupplement,
   getSupplementsWithStatus,
@@ -62,7 +62,7 @@ export function SupplementsScreen() {
   const done = items.filter((i) => i.taken_today).length;
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <ScreenScroll>
       <Pressable onPress={() => navigation.goBack()} style={styles.back}>
         <Text style={styles.backText}>← Modules</Text>
       </Pressable>
@@ -106,13 +106,11 @@ export function SupplementsScreen() {
         </View>
         <Button label="Save supplement" onPress={() => void handleAdd()} />
       </Card>
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   back: { marginBottom: spacing.sm },
   backText: { color: colors.accent, fontSize: 14, fontWeight: '600' },
   cardTitle: { fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: spacing.md },

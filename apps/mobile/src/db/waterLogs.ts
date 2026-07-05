@@ -1,13 +1,15 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import {
   createWaterLog,
+  deleteWaterLog,
   enqueueWaterLog,
+  updateWaterLog,
   WATER_LOGS_TABLE,
   type WaterLog,
 } from '@lifestyle-os/shared/sync';
 
 import { newId } from '../lib/id';
-import { insertRow, makeSyncQueue } from './helpers';
+import { insertRow, makeSyncQueue, parseFromSqlite, updateRow } from './helpers';
 
 export { migrateLocalSchema } from './migrate';
 
@@ -33,6 +35,49 @@ export async function insertWaterLogLocal(
   await enqueueWaterLog(queue, 'insert', row);
 
   return row;
+}
+
+export async function getWaterLogById(
+  db: SQLiteDatabase,
+  userId: string,
+  logId: string,
+): Promise<WaterLog | null> {
+  const row = await db.getFirstAsync<WaterLog>(
+    `SELECT * FROM water_logs WHERE id = ? AND user_id = ? AND deleted_at IS NULL`,
+    [logId, userId],
+  );
+  return row ? parseFromSqlite(row) : null;
+}
+
+export async function updateWaterLogLocal(
+  db: SQLiteDatabase,
+  userId: string,
+  logId: string,
+  amountMl: number,
+): Promise<WaterLog | null> {
+  const existing = await getWaterLogById(db, userId, logId);
+  if (!existing) return null;
+
+  const row = updateWaterLog(existing, { amount_ml: amountMl });
+  const queue = makeSyncQueue(db);
+  await updateRow(db, 'water_logs', row);
+  await enqueueWaterLog(queue, 'update', row);
+  return row;
+}
+
+export async function deleteWaterLogLocal(
+  db: SQLiteDatabase,
+  userId: string,
+  logId: string,
+): Promise<boolean> {
+  const existing = await getWaterLogById(db, userId, logId);
+  if (!existing) return false;
+
+  const row = deleteWaterLog(existing);
+  const queue = makeSyncQueue(db);
+  await updateRow(db, 'water_logs', row);
+  await enqueueWaterLog(queue, 'update', row);
+  return true;
 }
 
 export async function getTodayWaterLogs(

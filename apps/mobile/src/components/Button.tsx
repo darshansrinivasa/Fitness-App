@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   primary: {
-    backgroundColor: colors.accent,
+    backgroundColor: colors.primaryContainer,
   },
   secondary: {
     backgroundColor: colors.surface,

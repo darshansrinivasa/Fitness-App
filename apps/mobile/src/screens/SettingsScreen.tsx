@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, StyleSheet, Switch, Text, View } from 'react-native';
 
 import { useAuth } from '../auth/AuthContext';
 import { useAppLock } from '../auth/AppLockContext';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
 import { Input } from '../components/Input';
-import { screenStyles } from '../components/ScreenLayout';
+import { ScreenScroll, screenStyles } from '../components/ScreenLayout';
 import { updateProfile } from '../lib/supabase';
 import { colors, spacing } from '../theme/tokens';
 
@@ -58,7 +58,7 @@ export function SettingsScreen() {
   };
 
   return (
-    <ScrollView style={styles.scroll} contentContainerStyle={styles.content}>
+    <ScreenScroll>
       <View style={screenStyles.header}>
         <Text style={screenStyles.title}>Settings</Text>
         <Text style={screenStyles.subtitle}>{user?.email}</Text>
@@ -116,13 +116,11 @@ export function SettingsScreen() {
       </Card>
 
       <Button label="Sign out" variant="ghost" onPress={() => void signOut()} />
-    </ScrollView>
+    </ScreenScroll>
   );
 }
 
 const styles = StyleSheet.create({
-  scroll: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: spacing.lg, paddingBottom: spacing.xl * 2 },
   cardTitle: { fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: spacing.md },
   switchRow: {
     flexDirection: 'row',

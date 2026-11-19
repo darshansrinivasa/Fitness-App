@@ -2,10 +2,9 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { AnalyticsScreen } from '../screens/AnalyticsScreen';
 import { DashboardScreen } from '../screens/DashboardScreen';
-import { SettingsScreen } from '../screens/SettingsScreen';
-import { WaterScreen } from '../screens/WaterScreen';
-import { InsightsStack } from './InsightsStack';
+import { ExportScreen } from '../screens/ExportScreen';
 import { ModulesStack } from './ModulesStack';
 import type { RootTabParamList } from './types';
 import { colors } from '../theme/tokens';
@@ -40,15 +39,6 @@ export function RootTabs() {
         }}
       />
       <Tab.Screen
-        name="Water"
-        component={WaterScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="water-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
         name="Modules"
         component={ModulesStack}
         options={{
@@ -58,21 +48,20 @@ export function RootTabs() {
         }}
       />
       <Tab.Screen
-        name="Insights"
-        component={InsightsStack}
+        name="Analytics"
+        component={AnalyticsScreen}
         options={{
-          tabBarLabel: 'Insights',
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="bar-chart-outline" size={size} color={color} />
           ),
         }}
       />
       <Tab.Screen
-        name="Settings"
-        component={SettingsScreen}
+        name="Export"
+        component={ExportScreen}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings-outline" size={size} color={color} />
+            <Ionicons name="download-outline" size={size} color={color} />
           ),
         }}
       />

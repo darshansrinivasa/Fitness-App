@@ -8,7 +8,7 @@ const Stack = createNativeStackNavigator<InsightsStackParamList>();
 
 export function InsightsStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#0f172a' } }}>
+    <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#f8f9fb' } }}>
       <Stack.Screen name="Analytics" component={AnalyticsScreen} />
       <Stack.Screen name="Export" component={ExportScreen} />
     </Stack.Navigator>

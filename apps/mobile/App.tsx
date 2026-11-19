@@ -11,11 +11,18 @@ import { AppLockProvider, useAppLock } from './src/auth/AppLockContext';
 import { handleAuthCallbackUrl } from './src/auth/googleSignIn';
 import { ErrorBoundary } from './src/components/ErrorBoundary';
 import { migrateLocalSchema } from './src/db/migrate';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import { AuthScreen } from './src/screens/AuthScreen';
+import { ProfileSetupScreen } from './src/screens/ProfileSetupScreen';
+import { SettingsScreen } from './src/screens/SettingsScreen';
 import { RootTabs } from './src/navigation/RootTabs';
+import type { RootStackParamList } from './src/navigation/types';
 import { LockScreen } from './src/screens/LockScreen';
 import { AppSyncProvider } from './src/sync/AppSyncContext';
 import { colors, spacing } from './src/theme/tokens';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function AuthenticatedApp() {
   const { locked } = useAppLock();
@@ -24,7 +31,15 @@ function AuthenticatedApp() {
     <>
       <AppSyncProvider>
         <NavigationContainer>
-          <RootTabs />
+          <Stack.Navigator
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: colors.bg },
+            }}
+          >
+            <Stack.Screen name="Main" component={RootTabs} />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
+          </Stack.Navigator>
         </NavigationContainer>
       </AppSyncProvider>
       {locked ? <LockScreen /> : null}
@@ -33,7 +48,7 @@ function AuthenticatedApp() {
 }
 
 function RootNavigator() {
-  const { session, loading, authError, retryInit } = useAuth();
+  const { session, loading, authError, retryInit, profile, profileReady } = useAuth();
 
   if (loading) {
     return (
@@ -72,6 +87,14 @@ function RootNavigator() {
 
   if (!session) {
     return <AuthScreen />;
+  }
+
+  if (!profileReady) {
+    return <LoadingScreen message="Loading profile…" />;
+  }
+
+  if (!profile?.full_name?.trim()) {
+    return <ProfileSetupScreen />;
   }
 
   return (

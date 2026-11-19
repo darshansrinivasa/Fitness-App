@@ -23,8 +23,12 @@ export type InsightsStackParamList = {
 
 export type RootTabParamList = {
   Home: undefined;
-  Water: undefined;
   Modules: NavigatorScreenParams<ModulesStackParamList>;
-  Insights: NavigatorScreenParams<InsightsStackParamList>;
+  Analytics: undefined;
+  Export: undefined;
+};
+
+export type RootStackParamList = {
+  Main: NavigatorScreenParams<RootTabParamList>;
   Settings: undefined;
 };

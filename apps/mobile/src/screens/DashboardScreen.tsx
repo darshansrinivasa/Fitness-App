@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSQLiteContext } from 'expo-sqlite';
 
 import { useAuth } from '../auth/AuthContext';
 import { Button } from '../components/Button';
 import { Card } from '../components/Card';
-import { screenStyles, ScreenScroll } from '../components/ScreenLayout';
+import { ScreenScroll } from '../components/ScreenLayout';
 import { WaterProgressRing } from '../components/WaterProgressRing';
 import { getTodayWorkoutCount } from '../db/fitness';
 import { ensureDefaultNutritionGoal, getActiveNutritionGoal, getTodayMacroTotals } from '../db/nutrition';
@@ -20,11 +21,14 @@ import { formatDuration, getLastSleepLog } from '../db/sleep';
 import { getTodaySupplementsTakenCount } from '../db/supplements';
 import { ensureDefaultWaterGoal } from '../db/waterGoals';
 import { useWaterModule } from '../hooks/useWaterModule';
-import type { RootTabParamList } from '../navigation/types';
+import type { RootStackParamList, RootTabParamList } from '../navigation/types';
 import { useAppSync } from '../sync/AppSyncContext';
-import { colors, spacing } from '../theme/tokens';
+import { colors, moduleColors, radius, spacing } from '../theme/tokens';
 
-type Nav = BottomTabNavigationProp<RootTabParamList, 'Home'>;
+type Nav = CompositeNavigationProp<
+  BottomTabNavigationProp<RootTabParamList, 'Home'>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -50,7 +54,14 @@ export function DashboardScreen() {
     profile?.full_name ||
     (user?.user_metadata?.full_name as string | undefined) ||
     user?.email ||
-    'User';
+    'there';
+  const firstName = displayName.split(' ')[0];
+  const initial = displayName.charAt(0).toUpperCase();
+  const todayLabel = new Date().toLocaleDateString(undefined, {
+    weekday: 'long',
+    month: 'short',
+    day: 'numeric',
+  });
 
   const reload = useCallback(async () => {
     if (!user) return;
@@ -88,9 +99,34 @@ export function DashboardScreen() {
 
   return (
     <ScreenScroll>
-      <View style={screenStyles.header}>
-        <Text style={screenStyles.title}>Hi, {displayName}</Text>
-        <Text style={screenStyles.subtitle}>Slice 5 — Dashboard</Text>
+      <View style={styles.topRow}>
+        <View style={styles.greeting}>
+          <Text style={styles.hello}>Hi, {firstName}</Text>
+          <Text style={styles.dateLabel}>{todayLabel}</Text>
+        </View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Profile and settings"
+          onPress={() => navigation.navigate('Settings')}
+          style={styles.avatar}
+        >
+          <Text style={styles.avatarText}>{initial}</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.syncBanner}>
+        <Text style={styles.syncMeta}>
+          {syncing
+            ? 'Syncing…'
+            : syncError
+              ? syncError
+              : pendingCount > 0
+                ? `${pendingCount} change${pendingCount === 1 ? '' : 's'} waiting to sync`
+                : 'All changes synced'}
+        </Text>
+        <Pressable onPress={() => void syncNow()} disabled={syncing}>
+          <Text style={styles.link}>{syncing ? 'Syncing' : 'Sync'}</Text>
+        </Pressable>
       </View>
 
       <Card>
@@ -123,94 +159,151 @@ export function DashboardScreen() {
         </View>
       </Card>
 
+      <Text style={styles.section}>Today</Text>
       <View style={styles.grid}>
-        <Card style={styles.gridCard}>
-          <Text style={styles.cardTitle}>Water</Text>
-          <WaterProgressRing currentMl={todayTotalMl} goalMl={dailyGoalMl} size={100} />
-          <Pressable onPress={() => navigation.navigate('Water')}>
-            <Text style={styles.link}>Open water →</Text>
-          </Pressable>
-        </Card>
-        <Card style={styles.gridCard}>
-          <Text style={styles.cardTitle}>Fitness</Text>
-          <Text style={styles.stat}>{workoutsToday}</Text>
-          <Text style={styles.meta}>workouts today</Text>
-        </Card>
-      </View>
-
-      <View style={styles.grid}>
-        <Card style={styles.gridCard}>
-          <Text style={styles.cardTitle}>Nutrition</Text>
-          <Text style={styles.stat}>{calories.current}</Text>
-          <Text style={styles.meta}>/ {calories.goal} kcal</Text>
-        </Card>
-        <Card style={styles.gridCard}>
-          <Text style={styles.cardTitle}>Weight</Text>
-          <Text style={styles.statSmall}>{latestWeight}</Text>
-          <Text style={styles.meta}>latest entry</Text>
-        </Card>
-      </View>
-
-      <View style={styles.grid}>
-        <Card style={styles.gridCard}>
-          <Text style={styles.cardTitle}>Sleep</Text>
-          <Text style={styles.statSmall}>{sleepSummary}</Text>
-          <Pressable onPress={() => navigation.navigate('Modules', { screen: 'Sleep' })}>
-            <Text style={styles.link}>Log sleep →</Text>
-          </Pressable>
-        </Card>
-        <Card style={styles.gridCard}>
-          <Text style={styles.cardTitle}>Habits</Text>
-          <Text style={styles.stat}>{habitsSummary}</Text>
-          <Text style={styles.meta}>done today</Text>
-        </Card>
-      </View>
-
-      <View style={styles.grid}>
-        <Card style={styles.gridCard}>
-          <Text style={styles.cardTitle}>Supplements</Text>
-          <Text style={styles.stat}>{supplementsSummary}</Text>
-          <Text style={styles.meta}>taken today</Text>
-        </Card>
-        <Card style={styles.gridCard}>
-          <Text style={styles.cardTitle}>Goals</Text>
-          <Text style={styles.stat}>{activeGoals}</Text>
-          <Text style={styles.meta}>active</Text>
-        </Card>
-      </View>
-
-      <View style={styles.grid}>
-        <Card style={styles.gridCard}>
-          <Text style={styles.cardTitle}>Health</Text>
-          <Text style={styles.statSmall}>{heartRate}</Text>
-          <Pressable onPress={() => navigation.navigate('Modules', { screen: 'Health' })}>
-            <Text style={styles.link}>Log vitals →</Text>
-          </Pressable>
-        </Card>
-        <Card style={styles.gridCard}>
-          <Text style={styles.cardTitle}>Photos</Text>
-          <Text style={styles.stat}>{photoCount}</Text>
-          <Text style={styles.meta}>progress shots</Text>
-        </Card>
-      </View>
-
-      <Card>
-        <Text style={styles.cardTitle}>Sync</Text>
-        <Text style={styles.meta}>Pending: {pendingCount}</Text>
-        {syncError ? <Text style={styles.error}>{syncError}</Text> : null}
-        <Button
-          label={syncing ? 'Syncing…' : 'Sync now'}
-          loading={syncing}
-          onPress={() => void syncNow()}
-          style={styles.syncBtn}
+        <StatCard
+          title="Water"
+          accent={moduleColors.water.border}
+          onPress={() => navigation.navigate('Modules', { screen: 'Water' })}
+        >
+          <WaterProgressRing currentMl={todayTotalMl} goalMl={dailyGoalMl} size={88} />
+        </StatCard>
+        <StatCard
+          title="Fitness"
+          accent={moduleColors.fitness.border}
+          value={String(workoutsToday)}
+          caption="workouts today"
+          onPress={() => navigation.navigate('Modules', { screen: 'Fitness' })}
         />
-      </Card>
+      </View>
+      <View style={styles.grid}>
+        <StatCard
+          title="Nutrition"
+          accent={moduleColors.nutrition.border}
+          value={String(calories.current)}
+          caption={`/ ${calories.goal} kcal`}
+          onPress={() => navigation.navigate('Modules', { screen: 'Nutrition' })}
+        />
+        <StatCard
+          title="Weight"
+          accent={moduleColors.body.border}
+          value={latestWeight}
+          caption="latest entry"
+          onPress={() => navigation.navigate('Modules', { screen: 'Body' })}
+        />
+      </View>
+      <View style={styles.grid}>
+        <StatCard
+          title="Sleep"
+          accent={moduleColors.sleep.border}
+          value={sleepSummary}
+          caption="last night"
+          onPress={() => navigation.navigate('Modules', { screen: 'Sleep' })}
+        />
+        <StatCard
+          title="Habits"
+          accent={moduleColors.habits.border}
+          value={habitsSummary}
+          caption="done today"
+          onPress={() => navigation.navigate('Modules', { screen: 'Habits' })}
+        />
+      </View>
+      <View style={styles.grid}>
+        <StatCard
+          title="Supplements"
+          accent={moduleColors.supplements.border}
+          value={supplementsSummary}
+          caption="taken today"
+          onPress={() => navigation.navigate('Modules', { screen: 'Supplements' })}
+        />
+        <StatCard
+          title="Goals"
+          accent={moduleColors.goals.border}
+          value={String(activeGoals)}
+          caption="active"
+          onPress={() => navigation.navigate('Modules', { screen: 'Goals' })}
+        />
+      </View>
+      <View style={styles.grid}>
+        <StatCard
+          title="Health"
+          accent={moduleColors.health.border}
+          value={heartRate}
+          caption="latest heart rate"
+          onPress={() => navigation.navigate('Modules', { screen: 'Health' })}
+        />
+        <StatCard
+          title="Photos"
+          accent={moduleColors.photos.border}
+          value={String(photoCount)}
+          caption="progress shots"
+          onPress={() => navigation.navigate('Modules', { screen: 'Photos' })}
+        />
+      </View>
     </ScreenScroll>
   );
 }
 
+function StatCard({
+  title,
+  accent,
+  value,
+  caption,
+  onPress,
+  children,
+}: {
+  title: string;
+  accent: string;
+  value?: string;
+  caption?: string;
+  onPress: () => void;
+  children?: ReactNode;
+}) {
+  return (
+    <Pressable onPress={onPress} style={styles.gridPress}>
+      <Card style={[styles.gridCard, { borderLeftWidth: 4, borderLeftColor: accent }]}>
+        <Text style={styles.cardTitle}>{title}</Text>
+        {children ?? <Text style={styles.stat}>{value}</Text>}
+        {caption ? <Text style={styles.meta}>{caption}</Text> : null}
+      </Card>
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
-  cardTitle: { fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: spacing.sm },
+  topRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.lg,
+  },
+  greeting: { flex: 1 },
+  hello: { fontSize: 22, lineHeight: 28, fontWeight: '700', color: colors.text },
+  dateLabel: { fontSize: 14, color: colors.textMuted, marginTop: spacing.xs },
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: radius.full,
+    backgroundColor: colors.accentContainer,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  avatarText: { color: '#3d2e89', fontSize: 16, fontWeight: '700' },
+  syncMeta: { flex: 1, fontSize: 13, color: colors.textMuted },
+  syncBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: spacing.lg,
+    gap: spacing.md,
+  },
+  section: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.text,
+    marginBottom: spacing.md,
+  },
+  cardTitle: { fontSize: 14, fontWeight: '600', color: colors.text, marginBottom: spacing.sm },
   quickRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md },
   quickBtn: { flex: 1, paddingHorizontal: spacing.xs },
   lastWaterRow: {
@@ -222,9 +315,10 @@ const styles = StyleSheet.create({
   undoLink: { color: colors.danger, fontSize: 14, fontWeight: '600' },
   quickLinks: { gap: spacing.xs },
   link: { color: colors.accent, fontSize: 14, fontWeight: '600' },
-  grid: { flexDirection: 'row', gap: spacing.md, marginBottom: spacing.md },
-  gridCard: { flex: 1, alignItems: 'center' },
-  stat: { fontSize: 32, fontWeight: '700', color: colors.accent },
+  grid: { flexDirection: 'row', gap: spacing.md },
+  gridPress: { flex: 1 },
+  gridCard: { flex: 1, alignItems: 'center', marginBottom: spacing.md },
+  stat: { fontSize: 28, fontWeight: '700', color: colors.text, textAlign: 'center' },
   statSmall: { fontSize: 20, fontWeight: '700', color: colors.accent },
   meta: { fontSize: 13, color: colors.textMuted, textAlign: 'center' },
   error: { color: colors.danger, fontSize: 13, marginVertical: spacing.xs },

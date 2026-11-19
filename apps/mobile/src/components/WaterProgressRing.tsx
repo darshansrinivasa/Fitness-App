@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 
-import { colors } from '../theme/tokens';
+import { colors, moduleColors } from '../theme/tokens';
 
 interface WaterProgressRingProps {
   currentMl: number;
@@ -36,7 +36,7 @@ export function WaterProgressRing({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke={progress >= 1 ? colors.success : colors.accent}
+          stroke={progress >= 1 ? colors.success : moduleColors.water.accent}
           strokeWidth={stroke}
           fill="none"
           strokeDasharray={`${circumference} ${circumference}`}

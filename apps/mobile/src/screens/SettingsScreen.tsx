@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import { useAuth } from '../auth/AuthContext';
 import { useAppLock } from '../auth/AppLockContext';
@@ -21,6 +22,7 @@ export function SettingsScreen() {
   const [notifications, setNotifications] = useState(false);
   const [saving, setSaving] = useState(false);
   const { lockEnabled, biometricAvailable, biometricLabel, setLockEnabled } = useAppLock();
+  const navigation = useNavigation();
 
   const handleSave = async () => {
     if (!user) return;
@@ -59,6 +61,9 @@ export function SettingsScreen() {
 
   return (
     <ScreenScroll>
+      <Pressable onPress={() => navigation.goBack()} style={styles.back}>
+        <Text style={styles.backText}>← Home</Text>
+      </Pressable>
       <View style={screenStyles.header}>
         <Text style={screenStyles.title}>Settings</Text>
         <Text style={screenStyles.subtitle}>{user?.email}</Text>
@@ -121,6 +126,8 @@ export function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
+  back: { marginBottom: spacing.sm },
+  backText: { color: colors.accent, fontSize: 14, fontWeight: '600' },
   cardTitle: { fontSize: 18, fontWeight: '600', color: colors.text, marginBottom: spacing.md },
   switchRow: {
     flexDirection: 'row',

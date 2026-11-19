@@ -20,7 +20,8 @@
       "expo-secure-store",
       "expo-sqlite",
       "expo-web-browser",
-      "expo-local-authentication"
+      "expo-local-authentication",
+      "expo-font"
     ]
   }
 }

@@ -18,6 +18,7 @@ interface AuthContextValue {
   session: Session | null;
   user: User | null;
   profile: Profile | null;
+  profileReady: boolean;
   loading: boolean;
   authError: string | null;
   retryInit: () => void;
@@ -33,6 +34,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [profileReady, setProfileReady] = useState(false);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [initAttempt, setInitAttempt] = useState(0);
@@ -44,6 +46,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.warn('Profile load failed (non-fatal):', err);
       setProfile(null);
+    } finally {
+      setProfileReady(true);
     }
   }, []);
 
@@ -70,7 +74,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setSession(nextSession);
           setAuthError(null);
           if (nextSession?.user) {
+            setProfileReady(false);
             void loadProfile(nextSession.user.id);
+          } else {
+            setProfile(null);
+            setProfileReady(false);
           }
           setLoading(false);
           return;
@@ -79,9 +87,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(nextSession);
         setAuthError(null);
         if (nextSession?.user) {
+          setProfileReady(false);
           void loadProfile(nextSession.user.id);
         } else {
           setProfile(null);
+          setProfileReady(false);
         }
       },
     );
@@ -98,6 +108,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthError(null);
     setSession(null);
     setProfile(null);
+    setProfileReady(false);
     setLoading(true);
     setInitAttempt((n) => n + 1);
   }, []);
@@ -128,6 +139,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { error } = await getSupabase().auth.signOut();
     if (error) throw error;
     setProfile(null);
+    setProfileReady(false);
   }, []);
 
   const refreshProfile = useCallback(async () => {
@@ -140,6 +152,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       user: session?.user ?? null,
       profile,
+      profileReady,
       loading,
       authError,
       retryInit,
@@ -152,6 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [
       session,
       profile,
+      profileReady,
       loading,
       authError,
       retryInit,

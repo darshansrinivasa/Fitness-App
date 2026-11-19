@@ -19,7 +19,7 @@ const Stack = createNativeStackNavigator<ModulesStackParamList>();
 
 export function ModulesStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#0f172a' } }}>
+    <Stack.Navigator screenOptions={{ headerShown: false, contentStyle: { backgroundColor: '#f8f9fb' } }}>
       <Stack.Screen name="ModulesList" component={ModulesScreen} />
       <Stack.Screen name="Water" component={WaterScreen} />
       <Stack.Screen name="Fitness" component={FitnessScreen} />

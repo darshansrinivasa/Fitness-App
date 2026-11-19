@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
   EXPORT_MODULES,
@@ -18,10 +17,7 @@ import { Input } from '../components/Input';
 import { ScreenScroll, screenStyles } from '../components/ScreenLayout';
 import { gatherLifestyleExport } from '../db/analytics';
 import { shareExport } from '../lib/exportFile';
-import type { InsightsStackParamList } from '../navigation/types';
 import { colors, spacing } from '../theme/tokens';
-
-type Nav = NativeStackNavigationProp<InsightsStackParamList, 'Export'>;
 
 const PRESETS: DateRangePreset[] = ['today', 'week', 'month', 'quarter', 'custom'];
 const FORMATS: { key: ExportFormat; label: string }[] = [
@@ -49,7 +45,7 @@ const MODULE_LABELS: Record<ExportModule, string> = {
 export function ExportScreen() {
   const db = useSQLiteContext();
   const { user, profile } = useAuth();
-  const navigation = useNavigation<Nav>();
+  const navigation = useNavigation();
   const [preset, setPreset] = useState<DateRangePreset>('month');
   const [customFrom, setCustomFrom] = useState('');
   const [customTo, setCustomTo] = useState('');
@@ -103,9 +99,11 @@ export function ExportScreen() {
 
   return (
     <ScreenScroll>
-      <Pressable onPress={() => navigation.goBack()} style={styles.back}>
-        <Text style={styles.backText}>← Analytics</Text>
-      </Pressable>
+      {navigation.canGoBack() ? (
+        <Pressable onPress={() => navigation.goBack()} style={styles.back}>
+          <Text style={styles.backText}>← Analytics</Text>
+        </Pressable>
+      ) : null}
       <View style={screenStyles.header}>
         <Text style={screenStyles.title}>Export</Text>
         <Text style={screenStyles.subtitle}>Share your data for backup or AI analysis</Text>

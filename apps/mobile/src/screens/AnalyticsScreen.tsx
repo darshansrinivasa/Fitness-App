@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import { useSQLiteContext } from 'expo-sqlite';
 import {
   buildPeriodSummary,
@@ -26,11 +26,11 @@ import {
 } from '../db/analytics';
 import { ensureDefaultWaterGoal, getActiveWaterGoal } from '../db/waterGoals';
 import { getSignedPhotoUrl } from '../lib/photoStorage';
-import type { InsightsStackParamList } from '../navigation/types';
+import type { RootTabParamList } from '../navigation/types';
 import { useAppSync } from '../sync/AppSyncContext';
 import { colors, spacing } from '../theme/tokens';
 
-type Nav = NativeStackNavigationProp<InsightsStackParamList, 'Analytics'>;
+type Nav = BottomTabNavigationProp<RootTabParamList, 'Analytics'>;
 
 const PERIODS: ReportPeriod[] = ['daily', 'weekly', 'monthly'];
 

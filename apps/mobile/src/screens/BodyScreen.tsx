@@ -9,7 +9,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useSQLiteContext } from 'expo-sqlite';
-import type { WeightLog } from '@lifestyle-os/shared/sync';
+import type { BodyMeasurement, WeightLog } from '@lifestyle-os/shared/sync';
 
 import { useAuth } from '../auth/AuthContext';
 import { Button } from '../components/Button';
@@ -19,6 +19,7 @@ import { ScreenScroll, screenStyles } from '../components/ScreenLayout';
 import { WeightChart } from '../components/WeightChart';
 import {
   calcBmi,
+  getLatestBodyMeasurement,
   getLatestWeight,
   getWeightHistory,
   getWeightTrend,
@@ -34,6 +35,20 @@ import { colors, spacing } from '../theme/tokens';
 
 type Nav = NativeStackNavigationProp<ModulesStackParamList, 'Body'>;
 
+const MEASUREMENT_FIELDS = [
+  ['chest_cm', 'Chest'],
+  ['waist_cm', 'Waist'],
+  ['hips_cm', 'Hips'],
+  ['shoulders_cm', 'Shoulders'],
+  ['neck_cm', 'Neck'],
+  ['left_arm_cm', 'Left arm'],
+  ['right_arm_cm', 'Right arm'],
+  ['left_thigh_cm', 'Left thigh'],
+  ['right_thigh_cm', 'Right thigh'],
+  ['left_calf_cm', 'Left calf'],
+  ['right_calf_cm', 'Right calf'],
+] as const;
+
 export function BodyScreen() {
   const db = useSQLiteContext();
   const { user, profile } = useAuth();
@@ -41,21 +56,32 @@ export function BodyScreen() {
   const navigation = useNavigation<Nav>();
   const useLbs = profile?.weight_unit === 'lbs';
   const [weightInput, setWeightInput] = useState('');
-  const [waistInput, setWaistInput] = useState('');
+  const [measurements, setMeasurements] = useState<Record<string, string>>({});
+  const [latestMeasurement, setLatestMeasurement] = useState<BodyMeasurement | null>(null);
   const [latest, setLatest] = useState<WeightLog | null>(null);
   const [history, setHistory] = useState<WeightLog[]>([]);
   const [trend, setTrend] = useState<WeightTrendPoint[]>([]);
 
   const reload = useCallback(async () => {
     if (!user) return;
-    const [last, hist, chart] = await Promise.all([
+    const [last, hist, chart, measurement] = await Promise.all([
       getLatestWeight(db, user.id),
       getWeightHistory(db, user.id, 10),
       getWeightTrend(db, user.id, 30),
+      getLatestBodyMeasurement(db, user.id),
     ]);
     setLatest(last);
     setHistory(hist);
     setTrend(chart);
+    setLatestMeasurement(measurement);
+    if (measurement) {
+      const next: Record<string, string> = {};
+      for (const [key] of MEASUREMENT_FIELDS) {
+        const value = measurement[key];
+        if (value != null) next[key] = String(value);
+      }
+      setMeasurements(next);
+    }
     if (last) {
       setWeightInput(
         String(useLbs ? kgToLbs(last.weight_kg) : Math.round(last.weight_kg * 10) / 10),
@@ -83,14 +109,25 @@ export function BodyScreen() {
 
   const handleLogMeasurements = async () => {
     if (!user) return;
-    const waist = Number.parseFloat(waistInput);
-    if (!Number.isFinite(waist) || waist <= 0) {
-      Alert.alert('Invalid measurement', 'Enter waist in cm.');
+    const patch: Partial<Pick<BodyMeasurement, (typeof MEASUREMENT_FIELDS)[number][0]>> = {};
+    for (const [key, label] of MEASUREMENT_FIELDS) {
+      const raw = measurements[key]?.trim();
+      if (!raw) continue;
+      const value = Number.parseFloat(raw);
+      if (!Number.isFinite(value) || value <= 0) {
+        Alert.alert('Invalid measurement', `${label} must be a number in cm.`);
+        return;
+      }
+      patch[key] = value;
+    }
+    if (Object.keys(patch).length === 0) {
+      Alert.alert('Measurements', 'Enter at least one measurement in cm.');
       return;
     }
-    await logBodyMeasurement(db, user.id, { waist_cm: waist });
+    await logBodyMeasurement(db, user.id, patch);
+    await reload();
     await afterLocalWrite();
-    Alert.alert('Saved', 'Measurements logged.');
+    Alert.alert('Saved', 'Measurements logged and queued to sync.');
   };
 
   const displayWeight = latest
@@ -125,14 +162,20 @@ export function BodyScreen() {
       </Card>
 
       <Card>
-        <Text style={styles.cardTitle}>Measurements</Text>
-        <Input
-          value={waistInput}
-          onChangeText={setWaistInput}
-          keyboardType="decimal-pad"
-          placeholder="Waist (cm)"
-        />
-        <Button label="Save waist" variant="secondary" onPress={() => void handleLogMeasurements()} />
+        <Text style={styles.cardTitle}>Measurements (cm)</Text>
+        {latestMeasurement ? (
+          <Text style={styles.meta}>Last logged {latestMeasurement.logged_date}</Text>
+        ) : null}
+        {MEASUREMENT_FIELDS.map(([key, label]) => (
+          <Input
+            key={key}
+            value={measurements[key] ?? ''}
+            onChangeText={(value) => setMeasurements((current) => ({ ...current, [key]: value }))}
+            keyboardType="decimal-pad"
+            placeholder={`${label} (cm)`}
+          />
+        ))}
+        <Button label="Save measurements" variant="secondary" onPress={() => void handleLogMeasurements()} />
       </Card>
 
       <Card>

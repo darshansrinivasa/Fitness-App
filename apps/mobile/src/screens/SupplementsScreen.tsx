@@ -30,6 +30,7 @@ export function SupplementsScreen() {
   const [name, setName] = useState('');
   const [dose, setDose] = useState('500');
   const [unit, setUnit] = useState('mg');
+  const [stock, setStock] = useState('');
 
   const reload = useCallback(async () => {
     if (!user) return;
@@ -42,12 +43,15 @@ export function SupplementsScreen() {
 
   const handleAdd = async () => {
     if (!user || !name.trim()) return;
+    const stockQty = stock.trim() ? Number.parseInt(stock, 10) : null;
     await addSupplement(db, user.id, {
       name: name.trim(),
       dose_amount: Number.parseFloat(dose) || 1,
       dose_unit: unit.trim() || 'mg',
+      stock_quantity: stockQty != null && Number.isFinite(stockQty) ? stockQty : null,
     });
     setName('');
+    setStock('');
     await reload();
     await afterLocalWrite();
   };
@@ -84,6 +88,7 @@ export function SupplementsScreen() {
                 <Text style={styles.rowTitle}>{item.name}</Text>
                 <Text style={styles.meta}>
                   {item.dose_amount} {item.dose_unit}
+                  {item.stock_quantity != null ? ` · ${item.stock_quantity} left` : ''}
                 </Text>
               </View>
               <Button
@@ -104,6 +109,12 @@ export function SupplementsScreen() {
           <Input value={dose} onChangeText={setDose} keyboardType="decimal-pad" placeholder="Dose" style={styles.doseField} />
           <Input value={unit} onChangeText={setUnit} placeholder="Unit" style={styles.doseField} />
         </View>
+        <Input
+          value={stock}
+          onChangeText={setStock}
+          keyboardType="number-pad"
+          placeholder="Stock (units, optional)"
+        />
         <Button label="Save supplement" onPress={() => void handleAdd()} />
       </Card>
     </ScreenScroll>

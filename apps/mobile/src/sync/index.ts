@@ -24,8 +24,10 @@ import {
   WATER_GOALS_TABLE,
   WATER_LOGS_TABLE,
   WEIGHT_LOGS_TABLE,
+  PERSONAL_RECORDS_TABLE,
   WORKOUT_EXERCISES_TABLE,
   WORKOUT_SETS_TABLE,
+  WORKOUT_TEMPLATES_TABLE,
   WORKOUTS_TABLE,
   type RemoteSyncClient,
   type SyncableRecord,
@@ -55,6 +57,14 @@ const REMOTE_COLUMNS: Record<string, readonly string[]> = {
   [WORKOUT_SETS_TABLE]: [
     'id', 'workout_exercise_id', 'set_number', 'reps', 'weight_kg',
     'duration_seconds', 'distance_km', 'notes', 'is_pr',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [WORKOUT_TEMPLATES_TABLE]: [
+    'id', 'user_id', 'name', 'description', 'exercises',
+    'created_at', 'updated_at', 'deleted_at', 'sync_version',
+  ],
+  [PERSONAL_RECORDS_TABLE]: [
+    'id', 'user_id', 'exercise_name', 'weight_kg', 'reps', 'achieved_at', 'workout_set_id',
     'created_at', 'updated_at', 'deleted_at', 'sync_version',
   ],
   [FOODS_TABLE]: [
@@ -161,6 +171,7 @@ const JSON_ARRAY_FIELDS = new Set([
   'products_used',
   'attachments',
   'key_ingredients',
+  'exercises',
 ]);
 const BOOL_FIELDS = new Set(['is_active', 'is_favourite', 'is_pr']);
 

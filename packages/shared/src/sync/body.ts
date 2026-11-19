@@ -53,16 +53,25 @@ export function createBodyMeasurement(
     id: string;
     user_id: string;
     logged_date?: string;
-    waist_cm?: number | null;
     chest_cm?: number | null;
+    waist_cm?: number | null;
     hips_cm?: number | null;
+    left_arm_cm?: number | null;
+    right_arm_cm?: number | null;
+    left_thigh_cm?: number | null;
+    right_thigh_cm?: number | null;
+    left_calf_cm?: number | null;
+    right_calf_cm?: number | null;
+    neck_cm?: number | null;
+    shoulders_cm?: number | null;
     notes?: string | null;
   },
   now: Date = new Date(),
 ): BodyMeasurement {
   return bodyMeasurementSchema.parse({
-    ...input,
-    logged_date: input.logged_date ?? todayDateString(now),
+    chest_cm: null,
+    waist_cm: null,
+    hips_cm: null,
     left_arm_cm: null,
     right_arm_cm: null,
     left_thigh_cm: null,
@@ -71,6 +80,8 @@ export function createBodyMeasurement(
     right_calf_cm: null,
     neck_cm: null,
     shoulders_cm: null,
+    ...input,
+    logged_date: input.logged_date ?? todayDateString(now),
     notes: input.notes ?? null,
     ...baseFields(now),
   });

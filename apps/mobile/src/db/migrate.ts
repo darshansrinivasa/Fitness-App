@@ -434,5 +434,41 @@ export async function migrateLocalSchema(db: SQLiteDatabase): Promise<void> {
     `,
     );
     await db.execAsync('PRAGMA user_version = 8');
+    version = 8;
+  }
+
+  if (version < 9) {
+    await runSql(
+      db,
+      `
+      CREATE TABLE IF NOT EXISTS workout_templates (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        name TEXT NOT NULL,
+        description TEXT,
+        exercises TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE TABLE IF NOT EXISTS personal_records (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL,
+        exercise_name TEXT NOT NULL,
+        weight_kg REAL,
+        reps INTEGER,
+        achieved_at TEXT NOT NULL,
+        workout_set_id TEXT,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        deleted_at TEXT,
+        sync_version INTEGER NOT NULL DEFAULT 1
+      );
+      CREATE INDEX IF NOT EXISTS personal_records_user_exercise_idx
+        ON personal_records (user_id, exercise_name);
+    `,
+    );
+    await db.execAsync('PRAGMA user_version = 9');
   }
 }

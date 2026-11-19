@@ -9,6 +9,7 @@ const JSON_ARRAY_KEYS = [
   'products_used',
   'attachments',
   'key_ingredients',
+  'exercises',
 ] as const;
 const BOOL_KEYS = ['is_active', 'is_favourite', 'is_pr'] as const;
 

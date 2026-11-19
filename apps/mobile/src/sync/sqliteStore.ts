@@ -94,10 +94,18 @@ export function createSqliteSyncStore(db: SQLiteDatabase): LocalSyncStore {
         `INSERT INTO ${table} (${keys.join(', ')})
          VALUES (${placeholders})
          ON CONFLICT(id) DO UPDATE SET ${updates}`,
-        keys.map((k) => (row as Record<string, unknown>)[k]) as SQLiteBindValue[],
+        keys.map((k) => toSqliteValue((row as Record<string, unknown>)[k])),
       );
     },
   };
+}
+
+function toSqliteValue(value: unknown): SQLiteBindValue {
+  if (value == null) return null;
+  if (typeof value === 'boolean') return value ? 1 : 0;
+  if (typeof value === 'number' || typeof value === 'string') return value;
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
 }
 
 export async function enqueueChange(

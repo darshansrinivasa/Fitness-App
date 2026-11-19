@@ -92,7 +92,22 @@ export async function getWeightTrend(
 export async function logBodyMeasurement(
   db: SQLiteDatabase,
   userId: string,
-  patch: { waist_cm?: number; chest_cm?: number; hips_cm?: number },
+  patch: Partial<
+    Pick<
+      BodyMeasurement,
+      | 'chest_cm'
+      | 'waist_cm'
+      | 'hips_cm'
+      | 'left_arm_cm'
+      | 'right_arm_cm'
+      | 'left_thigh_cm'
+      | 'right_thigh_cm'
+      | 'left_calf_cm'
+      | 'right_calf_cm'
+      | 'neck_cm'
+      | 'shoulders_cm'
+    >
+  >,
 ): Promise<BodyMeasurement> {
   const today = todayDateString();
   const queue = makeSyncQueue(db);

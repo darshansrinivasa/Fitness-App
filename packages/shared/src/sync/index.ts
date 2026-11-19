@@ -21,15 +21,22 @@ export {
   type EnqueueWaterGoalChange,
 } from './waterGoals';
 export {
+  PERSONAL_RECORDS_TABLE,
   WORKOUTS_TABLE,
   WORKOUT_EXERCISES_TABLE,
   WORKOUT_SETS_TABLE,
+  WORKOUT_TEMPLATES_TABLE,
+  createPersonalRecord,
   createWorkout,
   createWorkoutExercise,
   createWorkoutSet,
+  createWorkoutTemplate,
+  enqueuePersonalRecord,
   enqueueWorkout,
   enqueueWorkoutExercise,
   enqueueWorkoutSet,
+  enqueueWorkoutTemplate,
+  updatePersonalRecord,
 } from './fitness';
 export {
   FOODS_TABLE,
@@ -127,9 +134,12 @@ export {
 export type { WaterLog } from '../schemas/waterLog';
 export type { WaterGoal } from '../schemas/waterGoal';
 export type {
+  PersonalRecord,
+  TemplateExercise,
   Workout,
   WorkoutExercise,
   WorkoutSet,
+  WorkoutTemplate,
   Food,
   MealLog,
   NutritionGoal,

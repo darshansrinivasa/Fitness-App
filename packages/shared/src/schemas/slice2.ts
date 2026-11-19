@@ -49,6 +49,40 @@ export const WORKOUTS_TABLE = 'workouts' as const;
 export const WORKOUT_EXERCISES_TABLE = 'workout_exercises' as const;
 export const WORKOUT_SETS_TABLE = 'workout_sets' as const;
 
+export const templateExerciseSchema = z.object({
+  exercise_name: z.string().min(1),
+  sets: z.number().int().positive(),
+  reps: z.number().int().positive(),
+  weight_kg: z.number().positive(),
+});
+
+export const workoutTemplateSchema = z.object({
+  id: z.string().uuid(),
+  user_id: z.string().uuid(),
+  name: z.string().min(1),
+  description: z.string().nullable().optional(),
+  exercises: z.array(templateExerciseSchema),
+  ...syncFields,
+});
+
+export const personalRecordSchema = z.object({
+  id: z.string().uuid(),
+  user_id: z.string().uuid(),
+  exercise_name: z.string().min(1),
+  weight_kg: z.number().positive().nullable().optional(),
+  reps: z.number().int().positive().nullable().optional(),
+  achieved_at: z.string().datetime(),
+  workout_set_id: z.string().uuid().nullable().optional(),
+  ...syncFields,
+});
+
+export type TemplateExercise = z.infer<typeof templateExerciseSchema>;
+export type WorkoutTemplate = z.infer<typeof workoutTemplateSchema>;
+export type PersonalRecord = z.infer<typeof personalRecordSchema>;
+
+export const WORKOUT_TEMPLATES_TABLE = 'workout_templates' as const;
+export const PERSONAL_RECORDS_TABLE = 'personal_records' as const;
+
 export const foodSchema = z.object({
   id: z.string().uuid(),
   user_id: z.string().uuid(),

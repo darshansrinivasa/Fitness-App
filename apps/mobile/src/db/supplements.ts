@@ -4,13 +4,14 @@ import {
   createSupplementLog,
   enqueueSupplement,
   enqueueSupplementLog,
+  updateSupplement,
   todayDateString,
   type Supplement,
   type SupplementLog,
 } from '@lifestyle-os/shared/sync';
 
 import { newId } from '../lib/id';
-import { insertRow, makeSyncQueue, parseFromSqlite } from './helpers';
+import { insertRow, makeSyncQueue, parseFromSqlite, updateRow } from './helpers';
 
 export interface SupplementWithStatus extends Supplement {
   taken_today: boolean;
@@ -31,10 +32,19 @@ export async function getActiveSupplements(
 export async function addSupplement(
   db: SQLiteDatabase,
   userId: string,
-  input: { name: string; dose_amount: number; dose_unit: string },
+  input: { name: string; dose_amount: number; dose_unit: string; stock_quantity?: number | null },
 ): Promise<Supplement> {
   const queue = makeSyncQueue(db);
-  const row = createSupplement({ id: newId(), user_id: userId, ...input });
+  const row = createSupplement({
+    id: newId(),
+    user_id: userId,
+    name: input.name,
+    dose_amount: input.dose_amount,
+    dose_unit: input.dose_unit,
+  });
+  if (input.stock_quantity != null) {
+    row.stock_quantity = input.stock_quantity;
+  }
   await insertRow(db, 'supplements', row);
   await enqueueSupplement(queue, 'insert', row);
   return row;
@@ -54,6 +64,12 @@ export async function logSupplementTaken(
   });
   await insertRow(db, 'supplement_logs', row);
   await enqueueSupplementLog(queue, 'insert', row);
+  if (supplement.stock_quantity != null) {
+    const nextStock = Math.max(0, supplement.stock_quantity - 1);
+    const updated = updateSupplement(supplement, { stock_quantity: nextStock });
+    await updateRow(db, 'supplements', updated);
+    await enqueueSupplement(queue, 'update', updated);
+  }
   return row;
 }
 

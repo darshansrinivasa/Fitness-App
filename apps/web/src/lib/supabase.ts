@@ -67,7 +67,7 @@ export async function ensureProfile(user: User): Promise<Profile | null> {
 
 export async function updateProfile(
   userId: string,
-  patch: Partial<Omit<Profile, 'id'>>,
+  patch: Partial<Omit<Profile, 'id'>> & { avatar_url?: string | null },
 ): Promise<void> {
   const { data, error } = await getSupabase()
     .from('profiles')

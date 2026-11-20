@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { Shell } from './components/Shell';
 import { useAuth } from './lib/auth';
 import { isUnlocked, passkeyEnabled } from './lib/passkey';
-import { LoginPage, ProfileSetup, SettingsPage, UnlockPage } from './pages/Account';
+import { LoginPage, SettingsPage, UnlockPage } from './pages/Account';
+import { onboardingDone, ProfileSetup } from './pages/ProfileSetup';
 import { Dashboard } from './pages/Dashboard';
 import { AnalyticsPage, ExportPage } from './pages/Insights';
 import { ModuleScreen, ModulesHub } from './pages/ModuleScreen';
@@ -23,6 +24,7 @@ export default function App() {
   const { configured, loading, session, profile, profileReady, error } = useAuth();
   const path = usePath();
   const [unlocked, setUnlocked] = useState(isUnlocked() || !passkeyEnabled());
+  const [setupDone, setSetupDone] = useState(false);
 
   if (!configured) {
     return <div className="center-screen"><p>Add the Supabase URL and anon key to apps/web/.env, then restart the web server.</p></div>;
@@ -32,7 +34,9 @@ export default function App() {
   }
   if (!session) return <LoginPage />;
   if (error && !profile) return <div className="center-screen"><p className="error">{error}</p></div>;
-  if (!profile?.full_name?.trim()) return <ProfileSetup />;
+  if (session && !setupDone && !onboardingDone(session.user.id)) {
+    return <ProfileSetup onDone={() => setSetupDone(true)} />;
+  }
   if (passkeyEnabled() && !unlocked) return <UnlockPage onUnlock={() => setUnlocked(true)} />;
 
   const moduleId = path.startsWith('/modules/') ? path.slice('/modules/'.length) : '';

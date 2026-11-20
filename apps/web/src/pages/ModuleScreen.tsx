@@ -35,7 +35,24 @@ import {
   uploadPhoto,
   type ModuleId,
 } from '../lib/api';
+import { navigate } from '../components/Shell';
+import { Crumb, PageTitle, Split, Stat, Tabs } from '../components/ui';
 import { useAuth } from '../lib/auth';
+
+const SCREENS: Record<ModuleId, { group: string; title: string; copy: string; tabs: string[] }> = {
+  fitness: { group: 'Physical Health', title: 'Fitness & Workouts', copy: 'Manage resistance training, cardio sessions, personal records, and volume.', tabs: ["Today's Workout", 'History', 'Templates', 'Personal Records'] },
+  nutrition: { group: 'Nutrition & Hydration', title: 'Nutrition & Macro Tracker', copy: 'Track daily calories, macros, and meal distribution.', tabs: ["Today's Meals", 'History', 'Food Database'] },
+  water: { group: 'Nutrition & Hydration', title: 'Hydration & Fluid Balance', copy: 'Monitor daily water consumption and timing.', tabs: ["Today's Logs", 'Weekly Trends'] },
+  sleep: { group: 'Recovery & Rest', title: 'Sleep Architecture & Recovery', copy: 'Log sleep duration, quality, and recent nights.', tabs: ['Night Architecture', 'History'] },
+  habits: { group: 'Routines & Habits', title: 'Daily Habits & Streaks', copy: 'Build daily routines and mark what you finished.', tabs: ["Today's Checklist", 'History'] },
+  body: { group: 'Physical Health', title: 'Anthropometrics & Body Composition', copy: 'Track weight and circumference measurements.', tabs: ['Weight & Vitals', 'Circumference'] },
+  photos: { group: 'Physical Health', title: 'Progress Photos & Visual Composition', copy: 'Visual archives and side-by-side progress.', tabs: ['Timeline Gallery', 'Comparison'] },
+  haircare: { group: 'Self-Care & Vitals', title: 'Haircare & Trichological Health', copy: 'Wash day, treatments, and products.', tabs: ['Routine Cadence', 'Products'] },
+  skincare: { group: 'Self-Care & Vitals', title: 'Skincare Protocols & Barrier Health', copy: 'Morning and evening routines, plus breakouts.', tabs: ['Daily Rituals', 'Dermatology Log'] },
+  supplements: { group: 'Self-Care & Vitals', title: 'Supplements & Protocols', copy: 'Dose timing, stacks, and stock.', tabs: ["Today's Schedule", 'Inventory'] },
+  goals: { group: 'Strategy & Vision', title: 'Goals & Milestone Progression', copy: 'Targets, check-ins, and progress.', tabs: ['Active Goals', 'Check-in'] },
+  health: { group: 'Clinical & Diagnostics', title: 'Health Records & Clinical Biomarkers', copy: 'Vitals, symptoms, and visit records.', tabs: ['Vitals', 'Documents'] },
+};
 
 export function ModuleScreen({ moduleId }: { moduleId: ModuleId }) {
   const { user } = useAuth();
@@ -50,6 +67,8 @@ export function ModuleScreen({ moduleId }: { moduleId: ModuleId }) {
   const [records, setRecords] = useState<Record<string, unknown>[]>([]);
   const [photos, setPhotos] = useState<Array<{ url: string; date: string }>>([]);
   const [tick, setTick] = useState(0);
+  const [tab, setTab] = useState(SCREENS[moduleId].tabs[0]);
+  useEffect(() => { setTab(SCREENS[moduleId].tabs[0]); }, [moduleId]);
 
   useEffect(() => {
     if (!user) return;
@@ -100,27 +119,27 @@ export function ModuleScreen({ moduleId }: { moduleId: ModuleId }) {
     }
   };
 
+  const screen = SCREENS[moduleId];
+  const showLog = tab === screen.tabs[0] || tab === 'Check-in' || tab === 'Circumference' || tab === 'Products' || tab === 'Dermatology Log' || tab === 'Inventory' || tab === 'Documents';
+
   return (
     <>
-      <div className="topbar">
-        <div>
-          <h1>{meta.title}</h1>
-          <p className="muted">{meta.blurb}</p>
-        </div>
-      </div>
+      <Crumb parts={['Modules', screen.group, meta.title]} />
+      <PageTitle kicker={screen.group} title={screen.title} copy={screen.copy} />
+      <Tabs tabs={screen.tabs} value={tab} onChange={setTab} />
       {error ? <p className="error">{error}</p> : null}
-      {user && moduleId === 'water' ? <WaterForm userId={user.id} act={act} /> : null}
-      {user && moduleId === 'fitness' ? <FitnessForm userId={user.id} act={act} templates={templates} /> : null}
-      {user && moduleId === 'nutrition' ? <NutritionForm userId={user.id} act={act} foods={foods} /> : null}
-      {user && moduleId === 'sleep' ? <SleepForm userId={user.id} act={act} /> : null}
-      {user && moduleId === 'habits' ? <HabitsForm userId={user.id} act={act} habits={habits} /> : null}
-      {user && moduleId === 'body' ? <BodyForm userId={user.id} act={act} /> : null}
-      {user && moduleId === 'photos' ? <PhotoForm userId={user.id} act={act} /> : null}
-      {user && moduleId === 'haircare' ? <HairForm userId={user.id} act={act} /> : null}
-      {user && moduleId === 'skincare' ? <SkinForm userId={user.id} act={act} /> : null}
-      {user && moduleId === 'supplements' ? <SupplementForm userId={user.id} act={act} items={supplements} /> : null}
-      {user && moduleId === 'goals' ? <GoalsForm userId={user.id} act={act} goals={goals} /> : null}
-      {user && moduleId === 'health' ? <HealthForm userId={user.id} act={act} /> : null}
+      {user && showLog && moduleId === 'water' ? <WaterForm userId={user.id} act={act} rows={rows} /> : null}
+      {user && showLog && moduleId === 'fitness' ? <FitnessForm userId={user.id} act={act} templates={templates} /> : null}
+      {user && showLog && moduleId === 'nutrition' ? <NutritionForm userId={user.id} act={act} foods={foods} /> : null}
+      {user && showLog && moduleId === 'sleep' ? <SleepForm userId={user.id} act={act} /> : null}
+      {user && showLog && moduleId === 'habits' ? <HabitsForm userId={user.id} act={act} habits={habits} /> : null}
+      {user && showLog && moduleId === 'body' ? <BodyForm userId={user.id} act={act} /> : null}
+      {user && showLog && moduleId === 'photos' ? <PhotoForm userId={user.id} act={act} /> : null}
+      {user && showLog && moduleId === 'haircare' ? <HairForm userId={user.id} act={act} /> : null}
+      {user && showLog && moduleId === 'skincare' ? <SkinForm userId={user.id} act={act} /> : null}
+      {user && showLog && moduleId === 'supplements' ? <SupplementForm userId={user.id} act={act} items={supplements} /> : null}
+      {user && showLog && moduleId === 'goals' ? <GoalsForm userId={user.id} act={act} goals={goals} /> : null}
+      {user && showLog && moduleId === 'health' ? <HealthForm userId={user.id} act={act} /> : null}
 
       {moduleId === 'fitness' ? (
         <div className="grid grid-2" style={{ marginTop: 12 }}>
@@ -133,7 +152,7 @@ export function ModuleScreen({ moduleId }: { moduleId: ModuleId }) {
           {photos.map((photo) => <img key={photo.url} src={photo.url} alt={photo.date} />)}
         </div>
       ) : null}
-      {rows.length > 0 ? (
+      {rows.length > 0 && moduleId !== 'water' ? (
         <article className="card" style={{ marginTop: 12 }}>
           <h2>Recent</h2>
           {rows.map((row) => (
@@ -159,18 +178,37 @@ function History({ title, rows }: { title: string; rows: Array<{ id: string; lab
   );
 }
 
-function WaterForm({ userId, act }: { userId: string; act: (work: () => Promise<void>) => Promise<void> }) {
-  const [amount, setAmount] = useState('350');
+function WaterForm({ userId, act, rows }: { userId: string; act: (work: () => Promise<void>) => Promise<void>; rows: Array<Record<string, unknown>> }) {
+  const [amount, setAmount] = useState('250');
+  const [kind, setKind] = useState('Mineral Water (Still)');
+  const total = rows.reduce((sum, row) => sum + Number(row.amount_ml ?? 0), 0);
   return (
-    <article className="card">
-      <div className="quick">
-        {[200, 350, 500].map((ml) => <button key={ml} onClick={() => void act(() => logWater(userId, ml))}>+{ml} ml</button>)}
-      </div>
-      <form className="row" onSubmit={(event) => { event.preventDefault(); void act(() => logWater(userId, Number(amount))); }}>
-        <input value={amount} onChange={(event) => setAmount(event.target.value)} />
-        <button className="primary" type="submit">Log custom ml</button>
-      </form>
-    </article>
+    <Split
+      left={<article className="card">
+        <h2>Hourly Intake Timeline</h2>
+        <p className="muted">{rows.length} logs</p>
+        {rows.length === 0 ? <p className="muted">No drinks logged yet.</p> : rows.map((row) => (
+          <div className="list-row" key={String(row.id)}><span>{String(row.amount_ml)} ml</span><span className="muted">{String(row.logged_at ?? '').slice(0, 16)}</span></div>
+        ))}
+      </article>}
+      right={<article className="card">
+        <Stat label="Volume recorded" value={`${total} ml`} detail="Today's logs on this page are the latest saved entries" />
+        <h3 style={{ marginTop: 12 }}>Rapid Log Presets</h3>
+        <div className="quick">
+          {[200, 350, 500, 750].map((ml) => <button key={ml} onClick={() => void act(() => logWater(userId, ml))}>+{ml} ml</button>)}
+        </div>
+        <h3>Log Custom Fluid</h3>
+        <form onSubmit={(event) => { event.preventDefault(); void act(() => logWater(userId, Number(amount))); }}>
+          <div className="field"><label>Volume (ml)</label><input value={amount} onChange={(event) => setAmount(event.target.value)} /></div>
+          <div className="field"><label>Beverage type</label>
+            <select value={kind} onChange={(event) => setKind(event.target.value)}>
+              {['Mineral Water (Still)', 'Sparkling Water', 'Electrolyte Drink', 'Herbal Tea', 'Coconut Water'].map((item) => <option key={item}>{item}</option>)}
+            </select>
+          </div>
+          <button className="primary" type="submit">Record Fluid</button>
+        </form>
+      </article>}
+    />
   );
 }
 
@@ -274,18 +312,27 @@ function BodyForm({ userId, act }: { userId: string; act: (work: () => Promise<v
   const [weight, setWeight] = useState('');
   const [waist, setWaist] = useState('');
   const [chest, setChest] = useState('');
+  const [hips, setHips] = useState('');
+  const measure = () => ({
+    ...(waist ? { waist_cm: Number(waist) } : {}),
+    ...(chest ? { chest_cm: Number(chest) } : {}),
+    ...(hips ? { hips_cm: Number(hips) } : {}),
+  });
   return (
-    <article className="card">
-      <div className="row">
-        <input value={weight} onChange={(event) => setWeight(event.target.value)} placeholder="Weight kg" />
-        <input value={waist} onChange={(event) => setWaist(event.target.value)} placeholder="Waist cm" />
-        <input value={chest} onChange={(event) => setChest(event.target.value)} placeholder="Chest cm" />
-      </div>
-      <div className="quick">
-        <button className="primary" onClick={() => void act(() => logWeight(userId, Number(weight)))}>Save weight</button>
-        <button onClick={() => void act(() => logMeasurements(userId, { ...(waist ? { waist_cm: Number(waist) } : {}), ...(chest ? { chest_cm: Number(chest) } : {}) }))}>Save measurements</button>
-      </div>
-    </article>
+    <Split
+      left={<article className="card"><h2>Recent weigh-ins</h2><p className="muted">Saved weight logs appear below this form.</p></article>}
+      right={<article className="card">
+        <h3>Record New Measurement</h3>
+        <div className="field"><label>Weight (kg)</label><input value={weight} onChange={(event) => setWeight(event.target.value)} /></div>
+        <div className="field"><label>Waist (cm)</label><input value={waist} onChange={(event) => setWaist(event.target.value)} /></div>
+        <div className="field"><label>Chest (cm)</label><input value={chest} onChange={(event) => setChest(event.target.value)} /></div>
+        <div className="field"><label>Hips (cm)</label><input value={hips} onChange={(event) => setHips(event.target.value)} /></div>
+        <div className="quick">
+          <button className="primary" onClick={() => void act(() => logWeight(userId, Number(weight)))}>Save weight</button>
+          <button onClick={() => void act(() => logMeasurements(userId, measure()))}>Save measurements</button>
+        </div>
+      </article>}
+    />
   );
 }
 
@@ -422,26 +469,29 @@ function num(value: string): number | undefined {
   return Number.isFinite(parsed) && value ? parsed : undefined;
 }
 
+const FILTERS = ['All Modules (12)', 'Physical Health', 'Nutrition & Hydration', 'Recovery & Rest', 'Routines & Habits', 'Self-Care & Vitals', 'Strategy & Vision', 'Clinical & Diagnostics'] as const;
+
 export function ModulesHub() {
-  const [query, setQuery] = useState('');
-  const visible = MODULES.filter((item) => item.title.toLowerCase().includes(query.toLowerCase()));
+  const [filter, setFilter] = useState<(typeof FILTERS)[number]>('All Modules (12)');
+  const visible = MODULES.filter((item) => filter === 'All Modules (12)' || SCREENS[item.id].group === filter.replace(' (12)', ''));
   return (
     <>
-      <div className="topbar">
-        <div>
-          <h1>Modules Hub</h1>
-          <p className="muted">All 12 lifestyle modules</p>
+      <PageTitle kicker="Ecosystem Overview · 12 Active Tracks" title="Modules Hub" copy="Explore, calibrate, and sync your 12 holistic lifestyle dimensions." />
+      <div className="chips">
+        {FILTERS.map((item) => <button key={item} aria-pressed={filter === item} onClick={() => setFilter(item)}>{item}</button>)}
+      </div>
+      {visible.length === 0 ? <p className="muted">No modules found. Reset the filter.</p> : (
+        <div className="grid grid-3">
+          {visible.map((item) => (
+            <button key={item.id} className="card" onClick={() => navigate(`/modules/${item.id}`)}>
+              <div className="muted">{SCREENS[item.id].group}</div>
+              <h2>{item.title}</h2>
+              <p className="muted">{item.blurb}</p>
+              <p className="muted">Open Module</p>
+            </button>
+          ))}
         </div>
-        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search modules" />
-      </div>
-      <div className="grid grid-3">
-        {visible.map((item) => (
-          <button key={item.id} className="card" onClick={() => { window.history.pushState({}, '', `/modules/${item.id}`); window.dispatchEvent(new PopStateEvent('popstate')); }}>
-            <h2>{item.title}</h2>
-            <p className="muted">{item.blurb}</p>
-          </button>
-        ))}
-      </div>
+      )}
     </>
   );
 }

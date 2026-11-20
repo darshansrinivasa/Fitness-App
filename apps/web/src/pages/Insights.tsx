@@ -1,8 +1,23 @@
 import { useState } from 'react';
 import type { DateRangePreset, ExportFormat, LifestyleExport, ReportPeriod } from '@lifestyle-os/shared';
 
+import { PageTitle, Split, Stat, Tabs } from '../components/ui';
 import { analyticsSummary, buildExport, renderExport } from '../lib/api';
 import { useAuth } from '../lib/auth';
+
+const RANGES: Array<{ id: DateRangePreset; label: string }> = [
+  { id: 'today', label: 'Today' },
+  { id: 'week', label: 'This Week' },
+  { id: 'month', label: 'This Month' },
+  { id: 'quarter', label: 'Last Quarter' },
+];
+
+const FORMATS: Array<{ id: ExportFormat; label: string; ext: string }> = [
+  { id: 'json', label: 'JSON Data', ext: '.json' },
+  { id: 'markdown', label: 'Markdown Summary', ext: '.md' },
+  { id: 'pdf', label: 'PDF Comprehensive', ext: '.html' },
+  { id: 'chatgpt', label: 'GPT-Optimized', ext: '.md' },
+];
 
 export function AnalyticsPage() {
   const { user, profile } = useAuth();
@@ -25,28 +40,29 @@ export function AnalyticsPage() {
 
   return (
     <>
-      <div className="topbar">
-        <div>
-          <h1>Analytics & Reports</h1>
-          <p className="muted">Summaries from the same cloud data as the phone app</p>
-        </div>
-      </div>
-      <div className="chips">
-        {(['daily', 'weekly', 'monthly'] as ReportPeriod[]).map((item) => (
-          <button key={item} aria-pressed={period === item} onClick={() => void load(item)}>{item}</button>
-        ))}
-      </div>
+      <PageTitle kicker="Biometrics & Longitudinal Data" title="Analytics & Reports" copy="Health signals across the modules that have saved logs." actions={
+        <button className="primary" onClick={() => void load(period)}>Refresh</button>
+      } />
+      <Tabs tabs={['Today', 'This Week', 'This Month']} value={period === 'daily' ? 'Today' : period === 'weekly' ? 'This Week' : 'This Month'} onChange={(tab) => void load(tab === 'Today' ? 'daily' : tab === 'This Week' ? 'weekly' : 'monthly')} />
       {error ? <p className="error">{error}</p> : null}
-      {cards.length === 0 ? <p className="muted">Choose a period to load the report.</p> : (
-        <div className="grid grid-3">
-          {cards.map((card) => (
-            <article className="card" key={card.label}>
-              <div className="muted">{card.label}</div>
-              <div className="stat-value">{card.headline}</div>
-              <div className="muted">{card.detail}</div>
+      {cards.length === 0 ? <p className="muted">Choose a range to load the report.</p> : (
+        <Split
+          left={<div className="stack">
+            <div className="grid grid-2">
+              {cards.slice(0, 4).map((card) => <Stat key={card.label} label={card.label} value={card.headline} detail={card.detail} />)}
+            </div>
+            <article className="card">
+              <h2>Longitudinal signals</h2>
+              <p className="muted">Figures come from the logs in this range. Empty modules stay blank.</p>
             </article>
-          ))}
-        </div>
+          </div>}
+          right={<article className="card">
+            <h2>Detailed Module Reports</h2>
+            {cards.map((card) => (
+              <div className="list-row" key={card.label}><span>{card.label}</span><span className="muted">{card.headline}</span></div>
+            ))}
+          </article>}
+        />
       )}
     </>
   );
@@ -80,31 +96,35 @@ export function ExportPage() {
 
   return (
     <>
-      <div className="topbar">
-        <div>
-          <h1>Export & AI Hub</h1>
-          <p className="muted">JSON, Markdown, printable HTML, and ChatGPT format</p>
-        </div>
-      </div>
-      <article className="card">
-        <div className="row">
-          <select value={preset} onChange={(event) => setPreset(event.target.value as DateRangePreset)}>
-            <option value="today">Today</option>
-            <option value="week">This week</option>
-            <option value="month">This month</option>
-            <option value="quarter">Last 3 months</option>
-          </select>
-          <select value={format} onChange={(event) => setFormat(event.target.value as ExportFormat)}>
-            <option value="json">JSON</option>
-            <option value="markdown">Markdown</option>
-            <option value="chatgpt">ChatGPT</option>
-            <option value="pdf">Printable HTML</option>
-          </select>
-          <button className="primary" onClick={() => void run()}>Download</button>
-        </div>
-        {error ? <p className="error">{error}</p> : null}
-        {preview ? <pre style={{ whiteSpace: 'pre-wrap' }}>{preview}</pre> : null}
-      </article>
+      <PageTitle kicker="Data export" title="Export & AI Integration Hub" copy="Download the logs already stored in your account as JSON, Markdown, a ChatGPT brief, or printable HTML." />
+      <Split
+        left={<div className="stack">
+          <article className="card">
+            <h3>Temporal Scope</h3>
+            <div className="chips" style={{ marginTop: 8 }}>
+              {RANGES.map((item) => <button key={item.id} aria-pressed={preset === item.id} onClick={() => setPreset(item.id)}>{item.label}</button>)}
+            </div>
+          </article>
+          <article className="card">
+            <h3>Export Formats</h3>
+            <div className="grid grid-2" style={{ marginTop: 8 }}>
+              {FORMATS.map((item) => (
+                <button key={item.id} className="card" aria-pressed={format === item.id} onClick={() => setFormat(item.id)}>
+                  <strong>{item.label}</strong>
+                  <div className="muted">{item.ext}</div>
+                </button>
+              ))}
+            </div>
+          </article>
+        </div>}
+        right={<article className="card">
+          <h3>Module Scope</h3>
+          <p className="muted">The file includes every module that has rows in the selected range.</p>
+          <button className="primary" onClick={() => void run()}>Generate & Download Export</button>
+          {error ? <p className="error">{error}</p> : null}
+          {preview ? <pre style={{ whiteSpace: 'pre-wrap' }}>{preview}</pre> : null}
+        </article>}
+      />
     </>
   );
 }

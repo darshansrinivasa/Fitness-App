@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient, type User } from '@supabase/supabase-js';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
@@ -36,23 +36,44 @@ export interface Profile {
   height_cm: number | null;
 }
 
+const profileColumns = 'id, full_name, date_of_birth, gender, water_unit, weight_unit, height_cm';
+
 export async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await getSupabase()
     .from('profiles')
-    .select('id, full_name, date_of_birth, gender, water_unit, weight_unit, height_cm')
+    .select(profileColumns)
     .eq('id', userId)
     .maybeSingle();
   if (error) throw new Error(error.message);
   return data;
 }
 
+function googleName(user: User): string | null {
+  const meta = user.user_metadata as Record<string, unknown> | undefined;
+  const value = meta?.full_name ?? meta?.name;
+  return typeof value === 'string' && value.trim() ? value.trim() : null;
+}
+
+export async function ensureProfile(user: User): Promise<Profile | null> {
+  const existing = await fetchProfile(user.id);
+  if (existing) return existing;
+  const { error } = await getSupabase().from('profiles').insert({
+    id: user.id,
+    full_name: googleName(user),
+  });
+  if (error && error.code !== '23505') throw new Error(error.message);
+  return fetchProfile(user.id);
+}
+
 export async function updateProfile(
   userId: string,
   patch: Partial<Omit<Profile, 'id'>>,
 ): Promise<void> {
-  const { error } = await getSupabase()
+  const { data, error } = await getSupabase()
     .from('profiles')
-    .update({ ...patch, updated_at: new Date().toISOString() })
-    .eq('id', userId);
+    .upsert({ id: userId, ...patch, updated_at: new Date().toISOString() }, { onConflict: 'id' })
+    .select('id')
+    .maybeSingle();
   if (error) throw new Error(error.message);
+  if (!data) throw new Error('Profile was not saved.');
 }

@@ -9,7 +9,7 @@ import {
 } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 
-import { fetchProfile, getSupabase, hasSupabaseConfig, type Profile } from './supabase';
+import { ensureProfile, getSupabase, hasSupabaseConfig, type Profile } from './supabase';
 
 interface AuthValue {
   configured: boolean;
@@ -34,10 +34,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profileReady, setProfileReady] = useState(!configured);
   const [error, setError] = useState<string | null>(null);
 
-  const loadProfile = useCallback(async (userId: string) => {
+  const loadProfile = useCallback(async (user: User) => {
     setProfileReady(false);
     try {
-      setProfile(await fetchProfile(userId));
+      setProfile(await ensureProfile(user));
       setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not load profile');
@@ -52,12 +52,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
-      if (data.session) void loadProfile(data.session.user.id);
+      if (data.session) void loadProfile(data.session.user);
       else setProfileReady(true);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
       setSession(next);
-      if (next) void loadProfile(next.user.id);
+      if (next) void loadProfile(next.user);
       else {
         setProfile(null);
         setProfileReady(true);
@@ -76,12 +76,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       profileReady,
       error,
       refreshProfile: async () => {
-        if (session) await loadProfile(session.user.id);
+        if (session) await loadProfile(session.user);
       },
       signInWithGoogle: async () => {
         const { error: authError } = await getSupabase().auth.signInWithOAuth({
           provider: 'google',
-          options: { redirectTo: window.location.origin },
+          options: {
+            redirectTo: window.location.origin,
+            scopes: 'openid email profile',
+            queryParams: { prompt: 'select_account' },
+          },
         });
         if (authError) throw new Error(authError.message);
       },

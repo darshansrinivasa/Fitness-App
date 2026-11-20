@@ -1,5 +1,6 @@
 import { useState } from 'react';
 
+import { saveBaseline } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { updateProfile } from '../lib/supabase';
 import { disablePasskey, passkeyEnabled, passkeySupported, registerPasskey } from '../lib/passkey';
@@ -63,33 +64,93 @@ export function UnlockPage({ onUnlock }: { onUnlock: () => void }) {
 
 export function ProfileSetup() {
   const { user, refreshProfile, signOut } = useAuth();
-  const [name, setName] = useState('');
+  const meta = user?.user_metadata as Record<string, unknown> | undefined;
+  const seeded = typeof meta?.full_name === 'string' ? meta.full_name : typeof meta?.name === 'string' ? meta.name : '';
+  const [name, setName] = useState(seeded);
+  const [dob, setDob] = useState('');
+  const [gender, setGender] = useState('male');
   const [height, setHeight] = useState('');
+  const [weight, setWeight] = useState('');
+  const [unit, setUnit] = useState<'kg' | 'lbs'>('kg');
+  const [water, setWater] = useState('3000');
+  const [calories, setCalories] = useState('2200');
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   return (
     <div className="center-screen">
       <form
         className="card"
-        style={{ width: 'min(520px, 100%)' }}
+        style={{ width: 'min(720px, 100%)' }}
         onSubmit={(event) => {
           event.preventDefault();
           if (!user || !name.trim()) {
             setError('Enter your name to continue.');
             return;
           }
+          if (dob && !/^\d{4}-\d{2}-\d{2}$/.test(dob)) {
+            setError('Use a valid date of birth.');
+            return;
+          }
+          const heightCm = height ? Number(height) : null;
+          const weightValue = weight ? Number(weight) : null;
+          if (height && (!heightCm || heightCm <= 0)) {
+            setError('Height must be a positive number.');
+            return;
+          }
+          if (weight && (!weightValue || weightValue <= 0)) {
+            setError('Weight must be a positive number.');
+            return;
+          }
+          const weightKg = weightValue == null ? null : unit === 'lbs' ? Math.round((weightValue / 2.20462) * 10) / 10 : weightValue;
+          setSaving(true);
+          setError(null);
           void updateProfile(user.id, {
             full_name: name.trim(),
-            height_cm: height ? Number(height) : null,
-          }).then(() => refreshProfile()).catch((err: unknown) => setError(err instanceof Error ? err.message : 'Could not save profile'));
+            date_of_birth: dob || null,
+            gender,
+            height_cm: heightCm,
+            weight_unit: unit,
+          })
+            .then(() => saveBaseline(user.id, {
+              weightKg,
+              waterMl: Number(water),
+              calories: Number(calories),
+            }))
+            .then(() => refreshProfile())
+            .catch((err: unknown) => {
+              setError(err instanceof Error ? err.message : 'Could not save profile');
+              setSaving(false);
+            });
         }}
       >
         <h1>Set up your profile</h1>
-        <p className="muted">This is the same profile the phone app uses.</p>
-        <div className="field"><label>Name</label><input value={name} onChange={(event) => setName(event.target.value)} /></div>
-        <div className="field"><label>Height (cm)</label><input value={height} onChange={(event) => setHeight(event.target.value)} /></div>
+        <p className="muted">This writes the same profile, weight, water goal, and calorie goal the phone app uses.</p>
+        <div className="grid grid-2">
+          <div className="field"><label>Name</label><input value={name} onChange={(event) => setName(event.target.value)} required /></div>
+          <div className="field"><label>Date of birth</label><input type="date" value={dob} onChange={(event) => setDob(event.target.value)} /></div>
+          <div className="field">
+            <label>Sex</label>
+            <select value={gender} onChange={(event) => setGender(event.target.value)}>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div className="field"><label>Height (cm)</label><input inputMode="decimal" value={height} onChange={(event) => setHeight(event.target.value)} /></div>
+          <div className="field"><label>Current weight</label><input inputMode="decimal" value={weight} onChange={(event) => setWeight(event.target.value)} /></div>
+          <div className="field">
+            <label>Weight unit</label>
+            <select value={unit} onChange={(event) => setUnit(event.target.value as 'kg' | 'lbs')}>
+              <option value="kg">kg</option>
+              <option value="lbs">lbs</option>
+            </select>
+          </div>
+          <div className="field"><label>Daily water (ml)</label><input inputMode="numeric" value={water} onChange={(event) => setWater(event.target.value)} /></div>
+          <div className="field"><label>Daily calories</label><input inputMode="numeric" value={calories} onChange={(event) => setCalories(event.target.value)} /></div>
+        </div>
         {error ? <p className="error">{error}</p> : null}
-        <button className="primary" type="submit">Continue</button>
+        <button className="primary" type="submit" disabled={saving}>{saving ? 'Saving…' : 'Continue'}</button>
         <button className="ghost" type="button" onClick={() => void signOut()}>Sign out</button>
       </form>
     </div>

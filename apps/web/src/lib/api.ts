@@ -18,6 +18,8 @@ import {
   createSupplementLog,
   createSymptomLog,
   createVitalsLog,
+  createNutritionGoal,
+  createWaterGoal,
   createWaterLog,
   createWeightLog,
   createWorkout,
@@ -31,6 +33,9 @@ import {
   type Habit,
   type PersonalRecord,
   type TemplateExercise,
+  NUTRITION_GOALS_TABLE,
+  WATER_GOALS_TABLE,
+  WEIGHT_LOGS_TABLE,
   type WorkoutTemplate,
 } from '@lifestyle-os/shared/sync';
 import {
@@ -67,6 +72,21 @@ export type ModuleId = (typeof MODULES)[number]['id'];
 
 function id(): string {
   return crypto.randomUUID();
+}
+
+export async function saveBaseline(
+  userId: string,
+  input: { weightKg?: number | null; waterMl?: number | null; calories?: number | null },
+): Promise<void> {
+  if (input.weightKg && input.weightKg > 0) {
+    await insert(WEIGHT_LOGS_TABLE, createWeightLog({ id: id(), user_id: userId, weight_kg: input.weightKg }));
+  }
+  if (input.waterMl && input.waterMl > 0) {
+    await insert(WATER_GOALS_TABLE, createWaterGoal({ id: id(), user_id: userId, daily_target_ml: Math.round(input.waterMl) }));
+  }
+  if (input.calories && input.calories > 0) {
+    await insert(NUTRITION_GOALS_TABLE, createNutritionGoal({ id: id(), user_id: userId, calories: Math.round(input.calories) }));
+  }
 }
 
 async function insert(table: string, row: object): Promise<void> {

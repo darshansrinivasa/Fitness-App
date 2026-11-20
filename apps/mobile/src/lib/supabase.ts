@@ -105,9 +105,11 @@ export async function updateProfile(
     >
   >,
 ): Promise<void> {
-  const { error } = await getSupabase()
+  const { data, error } = await getSupabase()
     .from('profiles')
-    .update({ ...patch, updated_at: new Date().toISOString() })
-    .eq('id', userId);
+    .upsert({ id: userId, ...patch, updated_at: new Date().toISOString() }, { onConflict: 'id' })
+    .select('id')
+    .maybeSingle();
   if (error) throw error;
+  if (!data) throw new Error('Profile was not saved.');
 }
